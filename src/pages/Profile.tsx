@@ -71,7 +71,7 @@ export default function Profile() {
   };
 
   const updateRequest = async (req: Request, status: string) => {
-    const { error } = await supabase.from("service_requests").update({ status }).eq("id", req.id);
+    const { error } = await supabase.from("service_requests").update({ status: status as any }).eq("id", req.id);
     if (error) toast.error("تعذّر التحديث");
     else {
       toast.success("تم التحديث");
