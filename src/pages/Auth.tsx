@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -11,15 +11,13 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
 import { Code2, Loader2 } from "lucide-react";
 
+const nameRule = z.string().trim().min(2, "حرفين على الأقل").max(50);
+
 const signUpSchema = z.object({
+  first_name: nameRule,
+  last_name: nameRule,
   email: z.string().trim().email("بريد غير صحيح").max(255),
   password: z.string().min(8, "كلمة المرور يجب أن تكون 8 أحرف على الأقل").max(72),
-  username: z
-    .string()
-    .trim()
-    .min(3, "اسم المستخدم 3 أحرف على الأقل")
-    .max(30)
-    .regex(/^[a-zA-Z0-9_]+$/, "حروف إنجليزية وأرقام و _ فقط"),
 });
 
 const signInSchema = z.object({
@@ -33,16 +31,17 @@ export default function Auth() {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (!authLoading && user) navigate("/", { replace: true });
+    if (!authLoading && user) navigate("/dashboard", { replace: true });
   }, [user, authLoading, navigate]);
 
   const handleSignUp = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const fd = new FormData(e.currentTarget);
     const parsed = signUpSchema.safeParse({
+      first_name: fd.get("first_name"),
+      last_name: fd.get("last_name"),
       email: fd.get("email"),
       password: fd.get("password"),
-      username: fd.get("username"),
     });
     if (!parsed.success) {
       toast.error(parsed.error.errors[0].message);
@@ -53,8 +52,12 @@ export default function Auth() {
       email: parsed.data.email,
       password: parsed.data.password,
       options: {
-        emailRedirectTo: `${window.location.origin}/`,
-        data: { username: parsed.data.username },
+        emailRedirectTo: `${window.location.origin}/dashboard`,
+        data: {
+          first_name: parsed.data.first_name,
+          last_name: parsed.data.last_name,
+          full_name: `${parsed.data.first_name} ${parsed.data.last_name}`,
+        },
       },
     });
     setLoading(false);
@@ -84,7 +87,7 @@ export default function Auth() {
       return;
     }
     toast.success("مرحباً بعودتك!");
-    navigate("/");
+    navigate("/dashboard");
   };
 
   return (
@@ -95,7 +98,7 @@ export default function Auth() {
             <Code2 className="h-7 w-7 text-primary-foreground" />
           </div>
           <h1 className="text-3xl font-bold text-gradient">DevHub</h1>
-          <p className="text-sm text-muted-foreground">منصة المبرمجين لعرض الخدمات والتعاون</p>
+          <p className="text-sm text-muted-foreground">منصة المبرمجين للتعلم والتعاون</p>
         </div>
 
         <Card className="shadow-card">
@@ -124,14 +127,25 @@ export default function Auth() {
                     {loading && <Loader2 className="ml-2 h-4 w-4 animate-spin" />}
                     دخول
                   </Button>
+                  <div className="text-center text-sm">
+                    <Link to="/forgot-password" className="text-primary hover:underline">
+                      نسيت كلمة المرور؟
+                    </Link>
+                  </div>
                 </form>
               </TabsContent>
 
               <TabsContent value="signup">
                 <form onSubmit={handleSignUp} className="space-y-4 pt-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="signup-username">اسم المستخدم</Label>
-                    <Input id="signup-username" name="username" type="text" required minLength={3} maxLength={30} />
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="space-y-2">
+                      <Label htmlFor="signup-first">الاسم الأول</Label>
+                      <Input id="signup-first" name="first_name" type="text" required minLength={2} maxLength={50} />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="signup-last">الاسم الأخير</Label>
+                      <Input id="signup-last" name="last_name" type="text" required minLength={2} maxLength={50} />
+                    </div>
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="signup-email">البريد الإلكتروني</Label>
