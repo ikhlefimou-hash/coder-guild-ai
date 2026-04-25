@@ -55,15 +55,8 @@ const App = () => (
                   />
                 }
               />
-              <Route
-                path="groups"
-                element={
-                  <ModulePlaceholder
-                    title="المجموعات"
-                    description="مجموعات عامة وخاصة للنقاش ومشاركة الموارد."
-                  />
-                }
-              />
+              <Route path="groups" element={<Groups />} />
+              <Route path="groups/:id" element={<GroupDetail />} />
               <Route
                 path="lessons"
                 element={
