@@ -93,7 +93,7 @@ export default function Services() {
           />
         </div>
         <Button asChild className="bg-gradient-primary shadow-glow">
-          <Link to="/services/new">عرض خدمة</Link>
+          <Link to="/dashboard/projects/new">عرض خدمة</Link>
         </Button>
       </div>
 
@@ -110,7 +110,7 @@ export default function Services() {
           {filtered.map((s) => {
             const r = ratings[s.id];
             return (
-              <Link key={s.id} to={`/services/${s.id}`}>
+              <Link key={s.id} to={`/dashboard/projects/${s.id}`}>
                 <Card className="h-full transition-all hover:border-primary/50 hover:shadow-glow">
                   <CardHeader>
                     <div className="flex items-start justify-between gap-2">

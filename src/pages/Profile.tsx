@@ -166,11 +166,11 @@ export default function Profile() {
         <CardHeader><CardTitle>خدماتي</CardTitle></CardHeader>
         <CardContent>
           {services.length === 0 ? (
-            <p className="text-sm text-muted-foreground">لا خدمات بعد. <Link to="/services/new" className="text-primary">عرض خدمة</Link></p>
+            <p className="text-sm text-muted-foreground">لا خدمات بعد. <Link to="/dashboard/projects/new" className="text-primary">عرض خدمة</Link></p>
           ) : (
             <div className="space-y-2">
               {services.map((s) => (
-                <Link key={s.id} to={`/services/${s.id}`} className="flex items-center justify-between rounded-lg border border-border p-3 hover:border-primary/50">
+                <Link key={s.id} to={`/dashboard/projects/${s.id}`} className="flex items-center justify-between rounded-lg border border-border p-3 hover:border-primary/50">
                   <span>{s.title}</span>
                   <span className="text-gradient font-bold">${s.price}</span>
                 </Link>
@@ -220,7 +220,7 @@ export default function Profile() {
               {outgoing.map((r) => (
                 <div key={r.id} className="rounded-lg border border-border p-3">
                   <div className="mb-2 flex items-center justify-between">
-                    <Link to={`/services/${r.service_id}`} className="font-medium hover:text-primary">
+                    <Link to={`/dashboard/projects/${r.service_id}`} className="font-medium hover:text-primary">
                       {r.services?.title}
                     </Link>
                     <StatusBadge status={r.status} />

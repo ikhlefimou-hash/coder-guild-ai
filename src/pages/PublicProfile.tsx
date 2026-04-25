@@ -78,7 +78,7 @@ export default function PublicProfilePage() {
           ) : (
             <div className="grid gap-3 sm:grid-cols-2">
               {services.map((s) => (
-                <Link key={s.id} to={`/services/${s.id}`} className="flex items-center justify-between rounded-lg border border-border p-3 hover:border-primary/50">
+                <Link key={s.id} to={`/dashboard/projects/${s.id}`} className="flex items-center justify-between rounded-lg border border-border p-3 hover:border-primary/50">
                   <span>{s.title}</span>
                   <span className="text-gradient font-bold">${s.price}</span>
                 </Link>
