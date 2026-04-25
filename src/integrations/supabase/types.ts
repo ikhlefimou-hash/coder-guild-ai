@@ -14,6 +14,135 @@ export type Database = {
   }
   public: {
     Tables: {
+      group_join_requests: {
+        Row: {
+          created_at: string
+          group_id: string
+          id: string
+          status: Database["public"]["Enums"]["join_request_status"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          group_id: string
+          id?: string
+          status?: Database["public"]["Enums"]["join_request_status"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          group_id?: string
+          id?: string
+          status?: Database["public"]["Enums"]["join_request_status"]
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "group_join_requests_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "groups"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      group_members: {
+        Row: {
+          group_id: string
+          id: string
+          joined_at: string
+          role: Database["public"]["Enums"]["group_member_role"]
+          user_id: string
+        }
+        Insert: {
+          group_id: string
+          id?: string
+          joined_at?: string
+          role?: Database["public"]["Enums"]["group_member_role"]
+          user_id: string
+        }
+        Update: {
+          group_id?: string
+          id?: string
+          joined_at?: string
+          role?: Database["public"]["Enums"]["group_member_role"]
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "group_members_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "groups"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      group_posts: {
+        Row: {
+          author_id: string
+          content: string
+          created_at: string
+          group_id: string
+          id: string
+          updated_at: string
+        }
+        Insert: {
+          author_id: string
+          content: string
+          created_at?: string
+          group_id: string
+          id?: string
+          updated_at?: string
+        }
+        Update: {
+          author_id?: string
+          content?: string
+          created_at?: string
+          group_id?: string
+          id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "group_posts_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "groups"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      groups: {
+        Row: {
+          created_at: string
+          created_by: string
+          description: string | null
+          id: string
+          name: string
+          updated_at: string
+          visibility: Database["public"]["Enums"]["group_visibility"]
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          description?: string | null
+          id?: string
+          name: string
+          updated_at?: string
+          visibility?: Database["public"]["Enums"]["group_visibility"]
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          description?: string | null
+          id?: string
+          name?: string
+          updated_at?: string
+          visibility?: Database["public"]["Enums"]["group_visibility"]
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -252,6 +381,14 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      can_post_in_group: {
+        Args: { _group_id: string; _user_id: string }
+        Returns: boolean
+      }
+      get_group_role: {
+        Args: { _group_id: string; _user_id: string }
+        Returns: Database["public"]["Enums"]["group_member_role"]
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -259,10 +396,21 @@ export type Database = {
         }
         Returns: boolean
       }
+      is_group_admin: {
+        Args: { _group_id: string; _user_id: string }
+        Returns: boolean
+      }
+      is_group_member: {
+        Args: { _group_id: string; _user_id: string }
+        Returns: boolean
+      }
     }
     Enums: {
       app_role: "admin" | "moderator" | "user"
       experience_level: "beginner" | "intermediate" | "advanced" | "expert"
+      group_member_role: "admin" | "moderator" | "member"
+      group_visibility: "public" | "private"
+      join_request_status: "pending" | "approved" | "rejected"
       report_status: "pending" | "reviewed" | "resolved" | "dismissed"
       report_target: "service" | "user" | "review"
       request_status:
@@ -400,6 +548,9 @@ export const Constants = {
     Enums: {
       app_role: ["admin", "moderator", "user"],
       experience_level: ["beginner", "intermediate", "advanced", "expert"],
+      group_member_role: ["admin", "moderator", "member"],
+      group_visibility: ["public", "private"],
+      join_request_status: ["pending", "approved", "rejected"],
       report_status: ["pending", "reviewed", "resolved", "dismissed"],
       report_target: ["service", "user", "review"],
       request_status: [
