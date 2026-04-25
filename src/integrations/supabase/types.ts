@@ -22,9 +22,11 @@ export type Database = {
           experience_level:
             | Database["public"]["Enums"]["experience_level"]
             | null
+          first_name: string | null
           full_name: string | null
           id: string
           is_suspended: boolean
+          last_name: string | null
           skills: string[] | null
           trust_score: number
           updated_at: string
@@ -37,9 +39,11 @@ export type Database = {
           experience_level?:
             | Database["public"]["Enums"]["experience_level"]
             | null
+          first_name?: string | null
           full_name?: string | null
           id: string
           is_suspended?: boolean
+          last_name?: string | null
           skills?: string[] | null
           trust_score?: number
           updated_at?: string
@@ -52,9 +56,11 @@ export type Database = {
           experience_level?:
             | Database["public"]["Enums"]["experience_level"]
             | null
+          first_name?: string | null
           full_name?: string | null
           id?: string
           is_suspended?: boolean
+          last_name?: string | null
           skills?: string[] | null
           trust_score?: number
           updated_at?: string
