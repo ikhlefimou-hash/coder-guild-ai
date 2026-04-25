@@ -129,7 +129,7 @@ export default function GroupDetail() {
         .eq("group_id", id)
         .eq("user_id", user.id)
         .maybeSingle();
-      setMyRequest((req as JoinReq) ?? null);
+      setMyRequest(req ? ({ ...(req as any), profile: null } as JoinReq) : null);
     } else {
       setMyRequest(null);
     }
