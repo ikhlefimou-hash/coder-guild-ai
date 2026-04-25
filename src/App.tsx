@@ -15,6 +15,8 @@ import Dashboard from "./pages/Dashboard.tsx";
 import NewService from "./pages/NewService.tsx";
 import ServiceDetail from "./pages/ServiceDetail.tsx";
 import Services from "./pages/Services.tsx";
+import Groups from "./pages/Groups.tsx";
+import GroupDetail from "./pages/GroupDetail.tsx";
 import Profile from "./pages/Profile.tsx";
 import PublicProfile from "./pages/PublicProfile.tsx";
 import NotFound from "./pages/NotFound.tsx";
