@@ -55,7 +55,7 @@ export default function NewService() {
       return;
     }
     toast.success("تم نشر الخدمة!");
-    navigate(`/services/${data.id}`);
+    navigate(`/dashboard/projects/${data.id}`);
   };
 
   return (
