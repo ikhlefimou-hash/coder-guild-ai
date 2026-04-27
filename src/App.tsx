@@ -19,6 +19,10 @@ import Groups from "./pages/Groups.tsx";
 import GroupDetail from "./pages/GroupDetail.tsx";
 import Profile from "./pages/Profile.tsx";
 import PublicProfile from "./pages/PublicProfile.tsx";
+import AiChat from "./pages/AiChat.tsx";
+import Programmers from "./pages/Programmers.tsx";
+import Lessons from "./pages/Lessons.tsx";
+import Ideas from "./pages/Ideas.tsx";
 import NotFound from "./pages/NotFound.tsx";
 
 const queryClient = new QueryClient();
@@ -47,38 +51,15 @@ const App = () => (
               }
             >
               <Route index element={<Dashboard />} />
-              <Route
-                path="ai"
-                element={
-                  <ModulePlaceholder
-                    title="المساعد الذكي"
-                    description="شات AI مخصص للبرمجة فقط (شرح / تصحيح / توليد الكود)."
-                  />
-                }
-              />
+              <Route path="ai" element={<AiChat />} />
               <Route path="groups" element={<Groups />} />
               <Route path="groups/:id" element={<GroupDetail />} />
-              <Route
-                path="lessons"
-                element={
-                  <ModulePlaceholder
-                    title="الدروس"
-                    description="مسارات تعليمية في HTML, CSS, JS, Python والباك-إند."
-                  />
-                }
-              />
+              <Route path="lessons" element={<Lessons />} />
+              <Route path="ideas" element={<Ideas />} />
               <Route path="projects" element={<Services />} />
               <Route path="projects/new" element={<NewService />} />
               <Route path="projects/:id" element={<ServiceDetail />} />
-              <Route
-                path="programmers"
-                element={
-                  <ModulePlaceholder
-                    title="المبرمجون"
-                    description="دليل المبرمجين مع التقييمات والمهارات."
-                  />
-                }
-              />
+              <Route path="programmers" element={<Programmers />} />
               <Route
                 path="messages"
                 element={
