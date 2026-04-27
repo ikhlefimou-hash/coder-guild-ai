@@ -195,7 +195,7 @@ export default function GroupDetail() {
     load();
   }, [load]);
 
-  // Realtime: refresh posts when changes happen
+  // Realtime: refresh posts + images when changes happen
   useEffect(() => {
     if (!id) return;
     const channel = supabase
@@ -205,11 +205,66 @@ export default function GroupDetail() {
         { event: "*", schema: "public", table: "group_posts", filter: `group_id=eq.${id}` },
         () => load(),
       )
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "group_images", filter: `group_id=eq.${id}` },
+        () => load(),
+      )
       .subscribe();
     return () => {
       supabase.removeChannel(channel);
     };
   }, [id, load]);
+
+  const handleUploadImage = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!user || !group) return;
+    const file = e.target.files?.[0];
+    e.target.value = "";
+    if (!file) return;
+    if (!file.type.startsWith("image/")) {
+      toast.error("الرجاء اختيار ملف صورة");
+      return;
+    }
+    if (file.size > 10 * 1024 * 1024) {
+      toast.error("حجم الصورة يجب أن يكون أقل من 10 ميغابايت");
+      return;
+    }
+    setUploading(true);
+    const ext = file.name.split(".").pop() ?? "jpg";
+    const path = `${group.id}/${user.id}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
+    const { error: upErr } = await supabase.storage.from("group-images").upload(path, file, {
+      cacheControl: "3600",
+      upsert: false,
+    });
+    if (upErr) {
+      setUploading(false);
+      toast.error(upErr.message);
+      return;
+    }
+    const { data: pub } = supabase.storage.from("group-images").getPublicUrl(path);
+    const { error: insErr } = await supabase.from("group_images").insert({
+      group_id: group.id,
+      uploader_id: user.id,
+      storage_path: path,
+      public_url: pub.publicUrl,
+    });
+    setUploading(false);
+    if (insErr) {
+      toast.error(insErr.message);
+      return;
+    }
+    toast.success("تم رفع الصورة");
+  };
+
+  const handleDeleteImage = async (img: GroupImage) => {
+    await supabase.storage.from("group-images").remove([img.storage_path]);
+    const { error } = await supabase.from("group_images").delete().eq("id", img.id);
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
+    toast.success("تم حذف الصورة");
+  };
 
   const handleJoinPublic = async () => {
     if (!user || !group) return;
