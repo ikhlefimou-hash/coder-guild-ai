@@ -498,6 +498,7 @@ export default function GroupDetail() {
         <Tabs defaultValue="posts">
           <TabsList>
             <TabsTrigger value="posts">المنشورات</TabsTrigger>
+            <TabsTrigger value="images">الصور</TabsTrigger>
             <TabsTrigger value="members">الأعضاء</TabsTrigger>
             {isAdmin && <TabsTrigger value="requests">الطلبات ({requests.length})</TabsTrigger>}
           </TabsList>
