@@ -32,7 +32,13 @@ import {
   Send,
   Check,
   X,
+  ImagePlus,
+  Images,
 } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+} from "@/components/ui/dialog";
 import { z } from "zod";
 
 type Visibility = "public" | "private";
