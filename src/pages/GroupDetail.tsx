@@ -154,18 +154,24 @@ export default function GroupDetail() {
       setMyRequest(null);
     }
 
-    // members + posts (RLS allows for public groups too)
-    const [{ data: ms }, { data: ps }] = await Promise.all([
+    // members + posts + images (RLS allows for public groups too)
+    const [{ data: ms }, { data: ps }, { data: imgs }] = await Promise.all([
       supabase.from("group_members").select("*").eq("group_id", id).order("joined_at", { ascending: true }),
       supabase.from("group_posts").select("*").eq("group_id", id).order("created_at", { ascending: false }),
+      supabase.from("group_images").select("*").eq("group_id", id).order("created_at", { ascending: false }),
     ]);
 
     const userIds = Array.from(
-      new Set([...(ms ?? []).map((m: any) => m.user_id), ...(ps ?? []).map((p: any) => p.author_id)]),
+      new Set([
+        ...(ms ?? []).map((m: any) => m.user_id),
+        ...(ps ?? []).map((p: any) => p.author_id),
+        ...(imgs ?? []).map((i: any) => i.uploader_id),
+      ]),
     );
     const profMap = await fetchProfiles(userIds);
     setMembers((ms ?? []).map((m: any) => ({ ...m, profile: profMap.get(m.user_id) ?? null })));
     setPosts((ps ?? []).map((p: any) => ({ ...p, profile: profMap.get(p.author_id) ?? null })));
+    setImages((imgs ?? []).map((i: any) => ({ ...i, profile: profMap.get(i.uploader_id) ?? null })));
 
     // join requests (admin only)
     if (meMem?.role === "admin") {
