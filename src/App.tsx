@@ -19,6 +19,10 @@ import Groups from "./pages/Groups.tsx";
 import GroupDetail from "./pages/GroupDetail.tsx";
 import Profile from "./pages/Profile.tsx";
 import PublicProfile from "./pages/PublicProfile.tsx";
+import AiChat from "./pages/AiChat.tsx";
+import Programmers from "./pages/Programmers.tsx";
+import Lessons from "./pages/Lessons.tsx";
+import Ideas from "./pages/Ideas.tsx";
 import NotFound from "./pages/NotFound.tsx";
 
 const queryClient = new QueryClient();
