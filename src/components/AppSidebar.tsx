@@ -23,6 +23,7 @@ import {
   Settings,
   LayoutDashboard,
   UserCog,
+  Lightbulb,
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 
@@ -31,6 +32,7 @@ const items = [
   { title: "المساعد الذكي", url: "/dashboard/ai", icon: Bot },
   { title: "المجموعات", url: "/dashboard/groups", icon: Users },
   { title: "الدروس", url: "/dashboard/lessons", icon: BookOpen },
+  { title: "الأفكار للبيع", url: "/dashboard/ideas", icon: Lightbulb },
   { title: "سوق المشاريع", url: "/dashboard/projects", icon: ShoppingBag },
   { title: "المبرمجون", url: "/dashboard/programmers", icon: Code2 },
   { title: "الرسائل", url: "/dashboard/messages", icon: MessageSquare },
