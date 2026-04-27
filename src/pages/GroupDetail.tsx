@@ -102,6 +102,9 @@ export default function GroupDetail() {
   const [myRequest, setMyRequest] = useState<JoinReq | null>(null);
   const [posting, setPosting] = useState(false);
   const [draft, setDraft] = useState("");
+  const [images, setImages] = useState<GroupImage[]>([]);
+  const [uploading, setUploading] = useState(false);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 
   const isMember = myRole !== null;
   const isAdmin = myRole === "admin";
