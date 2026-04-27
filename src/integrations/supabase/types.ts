@@ -14,6 +14,65 @@ export type Database = {
   }
   public: {
     Tables: {
+      ai_chats: {
+        Row: {
+          created_at: string
+          id: string
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          title?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      ai_messages: {
+        Row: {
+          chat_id: string
+          content: string
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["ai_role"]
+          user_id: string
+        }
+        Insert: {
+          chat_id: string
+          content: string
+          created_at?: string
+          id?: string
+          role: Database["public"]["Enums"]["ai_role"]
+          user_id: string
+        }
+        Update: {
+          chat_id?: string
+          content?: string
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["ai_role"]
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_messages_chat_id_fkey"
+            columns: ["chat_id"]
+            isOneToOne: false
+            referencedRelation: "ai_chats"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       group_images: {
         Row: {
           caption: string | null
@@ -170,6 +229,96 @@ export type Database = {
           name?: string
           updated_at?: string
           visibility?: Database["public"]["Enums"]["group_visibility"]
+        }
+        Relationships: []
+      }
+      ideas: {
+        Row: {
+          category: string | null
+          cover_url: string | null
+          created_at: string
+          description: string
+          full_code: string | null
+          id: string
+          is_published: boolean
+          preview_code: string | null
+          price: number
+          seller_id: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          category?: string | null
+          cover_url?: string | null
+          created_at?: string
+          description: string
+          full_code?: string | null
+          id?: string
+          is_published?: boolean
+          preview_code?: string | null
+          price?: number
+          seller_id: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          category?: string | null
+          cover_url?: string | null
+          created_at?: string
+          description?: string
+          full_code?: string | null
+          id?: string
+          is_published?: boolean
+          preview_code?: string | null
+          price?: number
+          seller_id?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      lessons: {
+        Row: {
+          author_id: string
+          category: string | null
+          cover_url: string | null
+          created_at: string
+          description: string
+          id: string
+          is_published: boolean
+          price: number
+          title: string
+          type: Database["public"]["Enums"]["lesson_type"]
+          updated_at: string
+          video_url: string | null
+        }
+        Insert: {
+          author_id: string
+          category?: string | null
+          cover_url?: string | null
+          created_at?: string
+          description: string
+          id?: string
+          is_published?: boolean
+          price?: number
+          title: string
+          type?: Database["public"]["Enums"]["lesson_type"]
+          updated_at?: string
+          video_url?: string | null
+        }
+        Update: {
+          author_id?: string
+          category?: string | null
+          cover_url?: string | null
+          created_at?: string
+          description?: string
+          id?: string
+          is_published?: boolean
+          price?: number
+          title?: string
+          type?: Database["public"]["Enums"]["lesson_type"]
+          updated_at?: string
+          video_url?: string | null
         }
         Relationships: []
       }
@@ -436,11 +585,13 @@ export type Database = {
       }
     }
     Enums: {
+      ai_role: "user" | "assistant"
       app_role: "admin" | "moderator" | "user"
       experience_level: "beginner" | "intermediate" | "advanced" | "expert"
       group_member_role: "admin" | "moderator" | "member"
       group_visibility: "public" | "private"
       join_request_status: "pending" | "approved" | "rejected"
+      lesson_type: "free" | "paid"
       report_status: "pending" | "reviewed" | "resolved" | "dismissed"
       report_target: "service" | "user" | "review"
       request_status:
@@ -576,11 +727,13 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      ai_role: ["user", "assistant"],
       app_role: ["admin", "moderator", "user"],
       experience_level: ["beginner", "intermediate", "advanced", "expert"],
       group_member_role: ["admin", "moderator", "member"],
       group_visibility: ["public", "private"],
       join_request_status: ["pending", "approved", "rejected"],
+      lesson_type: ["free", "paid"],
       report_status: ["pending", "reviewed", "resolved", "dismissed"],
       report_target: ["service", "user", "review"],
       request_status: [
