@@ -77,6 +77,17 @@ interface JoinReq {
 
 const postSchema = z.string().trim().min(1).max(4000);
 
+interface GroupImage {
+  id: string;
+  group_id: string;
+  uploader_id: string;
+  storage_path: string;
+  public_url: string;
+  caption: string | null;
+  created_at: string;
+  profile?: { username: string; full_name: string | null; avatar_url: string | null } | null;
+}
+
 export default function GroupDetail() {
   const { id } = useParams<{ id: string }>();
   const { user } = useAuth();
