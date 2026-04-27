@@ -563,6 +563,86 @@ export default function GroupDetail() {
             )}
           </TabsContent>
 
+          <TabsContent value="images" className="space-y-4 pt-4">
+            {isMember && (
+              <Card>
+                <CardContent className="flex items-center justify-between gap-3 p-4">
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <Images className="h-4 w-4" />
+                    <span>شارك صور مع المجموعة (حتى 10MB)</span>
+                  </div>
+                  <label className="cursor-pointer">
+                    <input
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={handleUploadImage}
+                      disabled={uploading}
+                    />
+                    <span className="inline-flex items-center gap-2 rounded-md bg-gradient-primary px-3 py-2 text-sm text-primary-foreground shadow-glow">
+                      {uploading ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : (
+                        <ImagePlus className="h-4 w-4" />
+                      )}
+                      رفع صورة
+                    </span>
+                  </label>
+                </CardContent>
+              </Card>
+            )}
+
+            {images.length === 0 ? (
+              <Card className="border-dashed">
+                <CardContent className="py-10 text-center text-sm text-muted-foreground">
+                  لا توجد صور بعد.
+                </CardContent>
+              </Card>
+            ) : (
+              <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4">
+                {images.map((img) => {
+                  const canDelete = img.uploader_id === user?.id || isAdmin;
+                  return (
+                    <div key={img.id} className="group relative aspect-square overflow-hidden rounded-md border bg-muted">
+                      <button
+                        type="button"
+                        onClick={() => setPreviewUrl(img.public_url)}
+                        className="block h-full w-full"
+                        aria-label="عرض الصورة"
+                      >
+                        <img
+                          src={img.public_url}
+                          alt={img.caption ?? "صورة المجموعة"}
+                          loading="lazy"
+                          className="h-full w-full object-cover transition group-hover:scale-105"
+                        />
+                      </button>
+                      {canDelete && (
+                        <Button
+                          variant="destructive"
+                          size="icon"
+                          onClick={() => handleDeleteImage(img)}
+                          className="absolute top-1 left-1 h-7 w-7 opacity-0 transition group-hover:opacity-100"
+                          aria-label="حذف"
+                        >
+                          <Trash2 className="h-3.5 w-3.5" />
+                        </Button>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+
+            <Dialog open={!!previewUrl} onOpenChange={(o) => !o && setPreviewUrl(null)}>
+              <DialogContent className="max-w-3xl p-2">
+                {previewUrl && (
+                  <img src={previewUrl} alt="معاينة" className="h-auto w-full rounded" />
+                )}
+              </DialogContent>
+            </Dialog>
+          </TabsContent>
+
           <TabsContent value="members" className="space-y-2 pt-4">
             {sortedMembers.map((m) => (
               <Card key={m.id}>
