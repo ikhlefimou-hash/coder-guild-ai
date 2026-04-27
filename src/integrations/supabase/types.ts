@@ -14,6 +14,36 @@ export type Database = {
   }
   public: {
     Tables: {
+      group_images: {
+        Row: {
+          caption: string | null
+          created_at: string
+          group_id: string
+          id: string
+          public_url: string
+          storage_path: string
+          uploader_id: string
+        }
+        Insert: {
+          caption?: string | null
+          created_at?: string
+          group_id: string
+          id?: string
+          public_url: string
+          storage_path: string
+          uploader_id: string
+        }
+        Update: {
+          caption?: string | null
+          created_at?: string
+          group_id?: string
+          id?: string
+          public_url?: string
+          storage_path?: string
+          uploader_id?: string
+        }
+        Relationships: []
+      }
       group_join_requests: {
         Row: {
           created_at: string
