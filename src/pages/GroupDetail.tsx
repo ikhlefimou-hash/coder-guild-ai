@@ -32,7 +32,13 @@ import {
   Send,
   Check,
   X,
+  ImagePlus,
+  Images,
 } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+} from "@/components/ui/dialog";
 import { z } from "zod";
 
 type Visibility = "public" | "private";
@@ -71,6 +77,17 @@ interface JoinReq {
 
 const postSchema = z.string().trim().min(1).max(4000);
 
+interface GroupImage {
+  id: string;
+  group_id: string;
+  uploader_id: string;
+  storage_path: string;
+  public_url: string;
+  caption: string | null;
+  created_at: string;
+  profile?: { username: string; full_name: string | null; avatar_url: string | null } | null;
+}
+
 export default function GroupDetail() {
   const { id } = useParams<{ id: string }>();
   const { user } = useAuth();
@@ -85,6 +102,9 @@ export default function GroupDetail() {
   const [myRequest, setMyRequest] = useState<JoinReq | null>(null);
   const [posting, setPosting] = useState(false);
   const [draft, setDraft] = useState("");
+  const [images, setImages] = useState<GroupImage[]>([]);
+  const [uploading, setUploading] = useState(false);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 
   const isMember = myRole !== null;
   const isAdmin = myRole === "admin";
@@ -134,18 +154,24 @@ export default function GroupDetail() {
       setMyRequest(null);
     }
 
-    // members + posts (RLS allows for public groups too)
-    const [{ data: ms }, { data: ps }] = await Promise.all([
+    // members + posts + images (RLS allows for public groups too)
+    const [{ data: ms }, { data: ps }, { data: imgs }] = await Promise.all([
       supabase.from("group_members").select("*").eq("group_id", id).order("joined_at", { ascending: true }),
       supabase.from("group_posts").select("*").eq("group_id", id).order("created_at", { ascending: false }),
+      supabase.from("group_images").select("*").eq("group_id", id).order("created_at", { ascending: false }),
     ]);
 
     const userIds = Array.from(
-      new Set([...(ms ?? []).map((m: any) => m.user_id), ...(ps ?? []).map((p: any) => p.author_id)]),
+      new Set([
+        ...(ms ?? []).map((m: any) => m.user_id),
+        ...(ps ?? []).map((p: any) => p.author_id),
+        ...(imgs ?? []).map((i: any) => i.uploader_id),
+      ]),
     );
     const profMap = await fetchProfiles(userIds);
     setMembers((ms ?? []).map((m: any) => ({ ...m, profile: profMap.get(m.user_id) ?? null })));
     setPosts((ps ?? []).map((p: any) => ({ ...p, profile: profMap.get(p.author_id) ?? null })));
+    setImages((imgs ?? []).map((i: any) => ({ ...i, profile: profMap.get(i.uploader_id) ?? null })));
 
     // join requests (admin only)
     if (meMem?.role === "admin") {
@@ -169,7 +195,7 @@ export default function GroupDetail() {
     load();
   }, [load]);
 
-  // Realtime: refresh posts when changes happen
+  // Realtime: refresh posts + images when changes happen
   useEffect(() => {
     if (!id) return;
     const channel = supabase
@@ -179,11 +205,66 @@ export default function GroupDetail() {
         { event: "*", schema: "public", table: "group_posts", filter: `group_id=eq.${id}` },
         () => load(),
       )
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "group_images", filter: `group_id=eq.${id}` },
+        () => load(),
+      )
       .subscribe();
     return () => {
       supabase.removeChannel(channel);
     };
   }, [id, load]);
+
+  const handleUploadImage = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!user || !group) return;
+    const file = e.target.files?.[0];
+    e.target.value = "";
+    if (!file) return;
+    if (!file.type.startsWith("image/")) {
+      toast.error("الرجاء اختيار ملف صورة");
+      return;
+    }
+    if (file.size > 10 * 1024 * 1024) {
+      toast.error("حجم الصورة يجب أن يكون أقل من 10 ميغابايت");
+      return;
+    }
+    setUploading(true);
+    const ext = file.name.split(".").pop() ?? "jpg";
+    const path = `${group.id}/${user.id}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
+    const { error: upErr } = await supabase.storage.from("group-images").upload(path, file, {
+      cacheControl: "3600",
+      upsert: false,
+    });
+    if (upErr) {
+      setUploading(false);
+      toast.error(upErr.message);
+      return;
+    }
+    const { data: pub } = supabase.storage.from("group-images").getPublicUrl(path);
+    const { error: insErr } = await supabase.from("group_images").insert({
+      group_id: group.id,
+      uploader_id: user.id,
+      storage_path: path,
+      public_url: pub.publicUrl,
+    });
+    setUploading(false);
+    if (insErr) {
+      toast.error(insErr.message);
+      return;
+    }
+    toast.success("تم رفع الصورة");
+  };
+
+  const handleDeleteImage = async (img: GroupImage) => {
+    await supabase.storage.from("group-images").remove([img.storage_path]);
+    const { error } = await supabase.from("group_images").delete().eq("id", img.id);
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
+    toast.success("تم حذف الصورة");
+  };
 
   const handleJoinPublic = async () => {
     if (!user || !group) return;
@@ -417,6 +498,7 @@ export default function GroupDetail() {
         <Tabs defaultValue="posts">
           <TabsList>
             <TabsTrigger value="posts">المنشورات</TabsTrigger>
+            <TabsTrigger value="images">الصور</TabsTrigger>
             <TabsTrigger value="members">الأعضاء</TabsTrigger>
             {isAdmin && <TabsTrigger value="requests">الطلبات ({requests.length})</TabsTrigger>}
           </TabsList>
@@ -479,6 +561,86 @@ export default function GroupDetail() {
                 );
               })
             )}
+          </TabsContent>
+
+          <TabsContent value="images" className="space-y-4 pt-4">
+            {isMember && (
+              <Card>
+                <CardContent className="flex items-center justify-between gap-3 p-4">
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <Images className="h-4 w-4" />
+                    <span>شارك صور مع المجموعة (حتى 10MB)</span>
+                  </div>
+                  <label className="cursor-pointer">
+                    <input
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={handleUploadImage}
+                      disabled={uploading}
+                    />
+                    <span className="inline-flex items-center gap-2 rounded-md bg-gradient-primary px-3 py-2 text-sm text-primary-foreground shadow-glow">
+                      {uploading ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : (
+                        <ImagePlus className="h-4 w-4" />
+                      )}
+                      رفع صورة
+                    </span>
+                  </label>
+                </CardContent>
+              </Card>
+            )}
+
+            {images.length === 0 ? (
+              <Card className="border-dashed">
+                <CardContent className="py-10 text-center text-sm text-muted-foreground">
+                  لا توجد صور بعد.
+                </CardContent>
+              </Card>
+            ) : (
+              <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4">
+                {images.map((img) => {
+                  const canDelete = img.uploader_id === user?.id || isAdmin;
+                  return (
+                    <div key={img.id} className="group relative aspect-square overflow-hidden rounded-md border bg-muted">
+                      <button
+                        type="button"
+                        onClick={() => setPreviewUrl(img.public_url)}
+                        className="block h-full w-full"
+                        aria-label="عرض الصورة"
+                      >
+                        <img
+                          src={img.public_url}
+                          alt={img.caption ?? "صورة المجموعة"}
+                          loading="lazy"
+                          className="h-full w-full object-cover transition group-hover:scale-105"
+                        />
+                      </button>
+                      {canDelete && (
+                        <Button
+                          variant="destructive"
+                          size="icon"
+                          onClick={() => handleDeleteImage(img)}
+                          className="absolute top-1 left-1 h-7 w-7 opacity-0 transition group-hover:opacity-100"
+                          aria-label="حذف"
+                        >
+                          <Trash2 className="h-3.5 w-3.5" />
+                        </Button>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+
+            <Dialog open={!!previewUrl} onOpenChange={(o) => !o && setPreviewUrl(null)}>
+              <DialogContent className="max-w-3xl p-2">
+                {previewUrl && (
+                  <img src={previewUrl} alt="معاينة" className="h-auto w-full rounded" />
+                )}
+              </DialogContent>
+            </Dialog>
           </TabsContent>
 
           <TabsContent value="members" className="space-y-2 pt-4">
