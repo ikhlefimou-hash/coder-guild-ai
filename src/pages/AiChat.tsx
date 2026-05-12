@@ -150,9 +150,17 @@ export default function AiChat() {
             <ScrollArea className="flex-1" ref={scrollRef as any}>
               <div ref={scrollRef} className="space-y-3 p-2">
                 {messages.length === 0 && (
-                  <div className="flex flex-col items-center justify-center py-16 text-center text-muted-foreground">
-                    <Bot className="mb-2 h-10 w-10" />
-                    <p className="text-sm">ابدأ المحادثة مع المساعد الذكي</p>
+                  <div className="flex flex-col items-center justify-center py-12 text-center">
+                    <div className="mb-3 flex h-16 w-16 items-center justify-center rounded-full bg-gradient-primary text-primary-foreground shadow-glow">
+                      <Bot className="h-8 w-8" />
+                    </div>
+                    <h2 className="text-lg font-bold">🛡️ SecBot — خبير الأمن السيبراني</h2>
+                    <p className="mt-1 text-sm text-muted-foreground">اسألني عن الثغرات، تدقيق الكود، اختبار الاختراق، أو سياسات الأمن.</p>
+                    <div className="mt-4 grid w-full max-w-md gap-2 text-right text-xs">
+                      <div className="rounded-md border bg-muted/40 p-2">🔍 حلّل لي هذا الكود وابحث عن ثغرات SQL Injection</div>
+                      <div className="rounded-md border bg-muted/40 p-2">🛡️ كيف أؤمّن JWT في تطبيقي؟</div>
+                      <div className="rounded-md border bg-muted/40 p-2">📋 اقترح سياسة أمنية لشركة ناشئة</div>
+                    </div>
                   </div>
                 )}
                 {messages.map((m) => (
@@ -177,7 +185,7 @@ export default function AiChat() {
                 value={draft}
                 onChange={(e) => setDraft(e.target.value)}
                 onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); send(); } }}
-                placeholder="اكتب سؤالك…"
+                placeholder="اسأل SecBot عن الأمن السيبراني، الثغرات، أو تدقيق كودك…"
                 rows={2}
                 className="resize-none"
               />
