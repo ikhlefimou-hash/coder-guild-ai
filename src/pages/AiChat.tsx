@@ -185,7 +185,7 @@ export default function AiChat() {
                 value={draft}
                 onChange={(e) => setDraft(e.target.value)}
                 onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); send(); } }}
-                placeholder="اكتب سؤالك…"
+                placeholder="اسأل SecBot عن الأمن السيبراني، الثغرات، أو تدقيق كودك…"
                 rows={2}
                 className="resize-none"
               />
