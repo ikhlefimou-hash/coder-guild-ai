@@ -253,8 +253,8 @@ export default function Messages() {
                   <p className="truncate text-xs text-muted-foreground">{c.last.content}</p>
                 </div>
               </button>
-            ))
-          )}
+            ));
+          })()}
         </ScrollArea>
       </aside>
 
