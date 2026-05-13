@@ -213,10 +213,23 @@ export default function Messages() {
                 </button>
               ))}
             </div>
-          ) : conversations.length === 0 ? (
-            <p className="p-4 text-center text-sm text-muted-foreground">لا توجد محادثات بعد</p>
-          ) : (
-            conversations.map((c) => (
+          ) : (() => {
+            const q = search.trim().toLowerCase();
+            const filtered = q
+              ? conversations.filter(
+                  (c) =>
+                    (c.peer.username ?? "").toLowerCase().includes(q) ||
+                    (c.peer.full_name ?? "").toLowerCase().includes(q) ||
+                    c.last.content.toLowerCase().includes(q),
+                )
+              : conversations;
+            if (filtered.length === 0)
+              return (
+                <p className="p-4 text-center text-sm text-muted-foreground">
+                  {q ? "لا توجد نتائج مطابقة" : "لا توجد محادثات بعد"}
+                </p>
+              );
+            return filtered.map((c) => (
               <button
                 key={c.peer.id}
                 onClick={() => setParams({ with: c.peer.id })}
@@ -240,8 +253,8 @@ export default function Messages() {
                   <p className="truncate text-xs text-muted-foreground">{c.last.content}</p>
                 </div>
               </button>
-            ))
-          )}
+            ));
+          })()}
         </ScrollArea>
       </aside>
 
