@@ -92,7 +92,49 @@ export default function Messages() {
         (payload) => {
           const m = payload.new as DM;
           if (m.sender_id !== user.id && m.recipient_id !== user.id) return;
-          loadConversations();
+
+          const otherId = m.sender_id === user.id ? m.recipient_id : m.sender_id;
+
+          setConversations((prev) => {
+            const existingIdx = prev.findIndex((c) => c.peer.id === otherId);
+            if (existingIdx >= 0) {
+              const next = [...prev];
+              next[existingIdx] = {
+                ...next[existingIdx],
+                last: m,
+                unread:
+                  m.sender_id !== user!.id && m.recipient_id === user!.id
+                    ? next[existingIdx].unread + 1
+                    : next[existingIdx].unread,
+              };
+              next.sort((a, b) => +new Date(b.last.created_at) - +new Date(a.last.created_at));
+              return next;
+            }
+            // new conversation - fetch peer profile
+            supabase
+              .from("profiles")
+              .select("id,username,full_name,avatar_url")
+              .eq("id", otherId)
+              .maybeSingle()
+              .then(({ data }) => {
+                if (!data) return;
+                setConversations((prev2) => {
+                  if (prev2.find((c) => c.peer.id === otherId)) return prev2;
+                  const next = [
+                    ...prev2,
+                    {
+                      peer: data as Profile,
+                      last: m,
+                      unread: m.sender_id !== user!.id && m.recipient_id === user!.id ? 1 : 0,
+                    },
+                  ];
+                  next.sort((a, b) => +new Date(b.last.created_at) - +new Date(a.last.created_at));
+                  return next;
+                });
+              });
+            return prev;
+          });
+
           if (peerId && (m.sender_id === peerId || m.recipient_id === peerId)) {
             setMessages((prev) => [...prev, m]);
             if (m.recipient_id === user.id) {
