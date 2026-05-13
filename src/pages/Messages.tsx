@@ -37,8 +37,8 @@ export default function Messages() {
   const scrollRef = useRef<HTMLDivElement>(null);
 
   // Load conversations list
-  const loadConversations = async () => {
-    if (!user) return;
+  const loadConversations = useCallback(async () => {
+    if (!user?.id) return;
     const { data: dms } = await supabase
       .from("direct_messages")
       .select("*")
@@ -78,7 +78,7 @@ export default function Messages() {
     }));
     list.sort((a, b) => +new Date(b.last.created_at) - +new Date(a.last.created_at));
     setConversations(list);
-  };
+  }, [user?.id]);
 
   // Realtime DM subscription
   useEffect(() => {
