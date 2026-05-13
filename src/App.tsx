@@ -23,6 +23,7 @@ import AiChat from "./pages/AiChat.tsx";
 import Programmers from "./pages/Programmers.tsx";
 import Lessons from "./pages/Lessons.tsx";
 import Ideas from "./pages/Ideas.tsx";
+import Messages from "./pages/Messages.tsx";
 import NotFound from "./pages/NotFound.tsx";
 
 const queryClient = new QueryClient();
@@ -60,24 +61,7 @@ const App = () => (
               <Route path="projects/new" element={<NewService />} />
               <Route path="projects/:id" element={<ServiceDetail />} />
               <Route path="programmers" element={<Programmers />} />
-              <Route
-                path="messages"
-                element={
-                  <ModulePlaceholder
-                    title="الرسائل"
-                    description="محادثات خاصة لحظية بين الأعضاء."
-                  />
-                }
-              />
-              <Route
-                path="notifications"
-                element={
-                  <ModulePlaceholder
-                    title="الإشعارات"
-                    description="كل إشعارات الرسائل والمجموعات والطلبات."
-                  />
-                }
-              />
+              <Route path="messages" element={<Messages />} />
               <Route
                 path="settings"
                 element={

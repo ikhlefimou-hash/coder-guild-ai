@@ -19,7 +19,6 @@ import {
   ShoppingBag,
   Code2,
   MessageSquare,
-  Bell,
   Settings,
   LayoutDashboard,
   UserCog,
@@ -36,7 +35,6 @@ const items = [
   { title: "سوق المشاريع", url: "/dashboard/projects", icon: ShoppingBag },
   { title: "المبرمجون", url: "/dashboard/programmers", icon: Code2 },
   { title: "الرسائل", url: "/dashboard/messages", icon: MessageSquare },
-  { title: "الإشعارات", url: "/dashboard/notifications", icon: Bell },
   { title: "الإعدادات", url: "/dashboard/settings", icon: Settings },
 ];
 

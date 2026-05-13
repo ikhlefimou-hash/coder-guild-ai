@@ -1,16 +1,16 @@
 import { Link } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Bot, Users, BookOpen, ShoppingBag, Code2, MessageSquare, Bell, Settings } from "lucide-react";
+import { Bot, Users, BookOpen, ShoppingBag, Code2, MessageSquare, Settings, Lightbulb } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 
 const modules = [
   { title: "المساعد الذكي", desc: "اطرح أي سؤال برمجي واحصل على إجابة فورية.", url: "/dashboard/ai", icon: Bot },
   { title: "المجموعات", desc: "انضم لمجموعات عامة أو خاصة وشارك المعرفة.", url: "/dashboard/groups", icon: Users },
   { title: "الدروس", desc: "مسارات تعليمية من المبتدئ للمحترف.", url: "/dashboard/lessons", icon: BookOpen },
+  { title: "الأفكار للبيع", desc: "أفكار وأكواد جاهزة للشراء.", url: "/dashboard/ideas", icon: Lightbulb },
   { title: "سوق المشاريع", desc: "تصفح وبيع مشاريع برمجية جاهزة.", url: "/dashboard/projects", icon: ShoppingBag },
   { title: "المبرمجون", desc: "اعثر على مبرمجين مميزين للتعاون.", url: "/dashboard/programmers", icon: Code2 },
   { title: "الرسائل", desc: "تواصل مباشر مع المبرمجين والعملاء.", url: "/dashboard/messages", icon: MessageSquare },
-  { title: "الإشعارات", desc: "تابع كل النشاطات والتحديثات.", url: "/dashboard/notifications", icon: Bell },
   { title: "الإعدادات", desc: "خصص حسابك والمظهر واللغة.", url: "/dashboard/settings", icon: Settings },
 ];
 
