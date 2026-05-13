@@ -148,7 +148,7 @@ export default function Messages() {
       supabase.removeChannel(ch);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user?.id, peerId]);
+  }, [user?.id, peerId, loadConversations]);
 
   // Load peer + messages when peerId changes
   useEffect(() => {
