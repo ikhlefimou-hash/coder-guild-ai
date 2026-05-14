@@ -231,6 +231,7 @@ export type Database = {
       }
       groups: {
         Row: {
+          allow_all_post: boolean
           created_at: string
           created_by: string
           description: string | null
@@ -240,6 +241,7 @@ export type Database = {
           visibility: Database["public"]["Enums"]["group_visibility"]
         }
         Insert: {
+          allow_all_post?: boolean
           created_at?: string
           created_by: string
           description?: string | null
@@ -249,6 +251,7 @@ export type Database = {
           visibility?: Database["public"]["Enums"]["group_visibility"]
         }
         Update: {
+          allow_all_post?: boolean
           created_at?: string
           created_by?: string
           description?: string | null
