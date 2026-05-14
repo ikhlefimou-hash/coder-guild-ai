@@ -82,6 +82,7 @@ export default function Groups() {
       name: fd.get("name"),
       description: fd.get("description") || "",
       visibility: fd.get("visibility"),
+      allow_all_post: fd.get("allow_all_post") === "on",
     });
     if (!parsed.success) {
       toast.error(parsed.error.errors[0].message);
@@ -92,6 +93,7 @@ export default function Groups() {
       name: parsed.data.name,
       description: parsed.data.description || null,
       visibility: parsed.data.visibility,
+      allow_all_post: !!parsed.data.allow_all_post,
       created_by: user.id,
     });
     setCreating(false);
