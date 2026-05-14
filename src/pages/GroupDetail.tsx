@@ -503,7 +503,7 @@ export default function GroupDetail() {
             {isAdmin && <TabsTrigger value="requests">الطلبات ({requests.length})</TabsTrigger>}
           </TabsList>
 
-          <TabsContent value="posts" className="space-y-4 pt-4">
+          <TabsContent value="posts" className="chat-bg space-y-4 rounded-lg p-4">
             {canPost && (
               <Card>
                 <CardContent className="space-y-3 p-4">
