@@ -95,4 +95,12 @@
     -webkit-text-fill-color: transparent;
     background-clip: text;
   }
+  .chat-bg {
+    background-color: hsl(var(--background));
+    background-image:
+      radial-gradient(hsl(var(--primary) / 0.08) 1px, transparent 1px),
+      radial-gradient(hsl(var(--accent) / 0.06) 1px, transparent 1px);
+    background-size: 24px 24px, 40px 40px;
+    background-position: 0 0, 12px 20px;
+  }
 }
