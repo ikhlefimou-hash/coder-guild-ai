@@ -153,6 +153,13 @@ export default function Groups() {
                   </SelectContent>
                 </Select>
               </div>
+              <div className="flex items-start gap-2 rounded-md border p-3">
+                <Checkbox id="g-allow" name="allow_all_post" />
+                <div className="space-y-1">
+                  <Label htmlFor="g-allow" className="cursor-pointer">السماح لكل الأعضاء بالنشر</Label>
+                  <p className="text-xs text-muted-foreground">إذا تم تفعيله، أي عضو يقدر يكتب في المجموعة. وإلا فقط المشرفون.</p>
+                </div>
+              </div>
               <DialogFooter>
                 <Button type="submit" disabled={creating} className="bg-gradient-primary shadow-glow">
                   {creating && <Loader2 className="ml-2 h-4 w-4 animate-spin" />}
