@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -43,6 +44,7 @@ const createSchema = z.object({
   name: z.string().trim().min(3, "3 أحرف على الأقل").max(80),
   description: z.string().trim().max(500).optional().or(z.literal("")),
   visibility: z.enum(["public", "private"]),
+  allow_all_post: z.boolean().optional(),
 });
 
 export default function Groups() {
@@ -80,6 +82,7 @@ export default function Groups() {
       name: fd.get("name"),
       description: fd.get("description") || "",
       visibility: fd.get("visibility"),
+      allow_all_post: fd.get("allow_all_post") === "on",
     });
     if (!parsed.success) {
       toast.error(parsed.error.errors[0].message);
@@ -90,6 +93,7 @@ export default function Groups() {
       name: parsed.data.name,
       description: parsed.data.description || null,
       visibility: parsed.data.visibility,
+      allow_all_post: !!parsed.data.allow_all_post,
       created_by: user.id,
     });
     setCreating(false);
@@ -148,6 +152,13 @@ export default function Groups() {
                     <SelectItem value="private">خاصة — تحتاج موافقة</SelectItem>
                   </SelectContent>
                 </Select>
+              </div>
+              <div className="flex items-start gap-2 rounded-md border p-3">
+                <Checkbox id="g-allow" name="allow_all_post" />
+                <div className="space-y-1">
+                  <Label htmlFor="g-allow" className="cursor-pointer">السماح لكل الأعضاء بالنشر</Label>
+                  <p className="text-xs text-muted-foreground">إذا تم تفعيله، أي عضو يقدر يكتب في المجموعة. وإلا فقط المشرفون.</p>
+                </div>
               </div>
               <DialogFooter>
                 <Button type="submit" disabled={creating} className="bg-gradient-primary shadow-glow">
