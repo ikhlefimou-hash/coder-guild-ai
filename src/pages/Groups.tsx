@@ -44,6 +44,7 @@ const createSchema = z.object({
   name: z.string().trim().min(3, "3 أحرف على الأقل").max(80),
   description: z.string().trim().max(500).optional().or(z.literal("")),
   visibility: z.enum(["public", "private"]),
+  allow_all_post: z.boolean().optional(),
 });
 
 export default function Groups() {
