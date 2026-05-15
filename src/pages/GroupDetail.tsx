@@ -34,6 +34,7 @@ import {
   X,
   ImagePlus,
   Images,
+  Mic,
 } from "lucide-react";
 import {
   Dialog,
