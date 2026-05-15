@@ -466,9 +466,8 @@ export default function GroupDetail() {
               {isAdmin && (
                 <AlertDialog>
                   <AlertDialogTrigger asChild>
-                    <Button variant="destructive">
-                      <Trash2 className="ml-1 h-4 w-4" />
-                      حذف المجموعة
+                    <Button variant="destructive" size="icon" aria-label="حذف المجموعة">
+                      <Trash2 className="h-4 w-4" />
                     </Button>
                   </AlertDialogTrigger>
                   <AlertDialogContent dir="rtl">
