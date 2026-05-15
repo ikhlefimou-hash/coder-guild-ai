@@ -611,31 +611,42 @@ export default function GroupDetail() {
                       e.preventDefault();
                       handlePost();
                     }}
-                    className="flex items-end gap-2 border-t border-border/40 bg-card/60 p-2 backdrop-blur"
+                    className="flex items-center gap-2 border-t border-border/40 bg-card/60 p-2 backdrop-blur"
                   >
+                    <div className="flex flex-1 items-center gap-1 rounded-full border border-border/50 bg-background/80 px-2 shadow-inner">
+                      <Textarea
+                        value={draft}
+                        onChange={(e) => setDraft(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter" && !e.shiftKey) {
+                            e.preventDefault();
+                            handlePost();
+                          }
+                        }}
+                        placeholder="اكتب رسالة..."
+                        maxLength={4000}
+                        rows={1}
+                        className="max-h-32 min-h-[40px] flex-1 resize-none border-0 bg-transparent py-2 text-sm shadow-none focus-visible:ring-0 focus-visible:ring-offset-0"
+                      />
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        className="h-9 w-9 shrink-0 rounded-full text-muted-foreground hover:text-foreground"
+                        aria-label="ميكروفون"
+                      >
+                        <Mic className="h-4 w-4" />
+                      </Button>
+                    </div>
                     <Button
                       type="submit"
                       size="icon"
                       disabled={posting || !draft.trim()}
-                      className="h-10 w-10 shrink-0 bg-gradient-primary shadow-glow"
+                      className="h-11 w-11 shrink-0 rounded-full bg-accent text-accent-foreground shadow-glow hover:bg-accent/90"
                       aria-label="إرسال"
                     >
                       {posting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
                     </Button>
-                    <Textarea
-                      value={draft}
-                      onChange={(e) => setDraft(e.target.value)}
-                      onKeyDown={(e) => {
-                        if (e.key === "Enter" && !e.shiftKey) {
-                          e.preventDefault();
-                          handlePost();
-                        }
-                      }}
-                      placeholder="اكتب رسالة..."
-                      maxLength={4000}
-                      rows={1}
-                      className="max-h-32 min-h-[40px] flex-1 resize-none rounded-2xl bg-background/60 py-2"
-                    />
                   </form>
                 ) : (
                   <div className="border-t border-border/40 bg-card/60 p-3 text-center text-xs text-muted-foreground">
