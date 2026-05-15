@@ -503,64 +503,121 @@ export default function GroupDetail() {
             {isAdmin && <TabsTrigger value="requests">الطلبات ({requests.length})</TabsTrigger>}
           </TabsList>
 
-          <TabsContent value="posts" className="chat-bg space-y-4 rounded-lg p-4">
-            {canPost && (
-              <Card>
-                <CardContent className="space-y-3 p-4">
-                  <Textarea
-                    value={draft}
-                    onChange={(e) => setDraft(e.target.value)}
-                    placeholder="اكتب منشوراً للمجموعة…"
-                    maxLength={4000}
-                    rows={3}
-                  />
-                  <div className="flex justify-end">
-                    <Button onClick={handlePost} disabled={posting || !draft.trim()} className="bg-gradient-primary shadow-glow">
-                      {posting ? <Loader2 className="ml-2 h-4 w-4 animate-spin" /> : <Send className="ml-2 h-4 w-4" />}
-                      نشر
-                    </Button>
+          <TabsContent value="posts" className="chat-bg rounded-lg p-3 md:p-4">
+            <div className="flex flex-col gap-4 lg:flex-row-reverse">
+              {/* Glass sidebar: files & images */}
+              <aside className="glass-panel sticky top-16 h-fit w-full shrink-0 rounded-xl p-3 lg:w-72">
+                <div className="mb-3 flex items-center gap-2 text-sm font-semibold">
+                  <Images className="h-4 w-4 text-primary" />
+                  <span>الملفات والصور</span>
+                  <span className="ms-auto text-xs text-muted-foreground">{images.length}</span>
+                </div>
+                {images.length === 0 ? (
+                  <p className="py-6 text-center text-xs text-muted-foreground">
+                    لا توجد ملفات بعد
+                  </p>
+                ) : (
+                  <div className="grid max-h-[60vh] grid-cols-3 gap-1.5 overflow-y-auto pr-1">
+                    {images.slice(0, 24).map((img) => (
+                      <button
+                        key={img.id}
+                        type="button"
+                        onClick={() => setPreviewUrl(img.public_url)}
+                        className="group relative aspect-square overflow-hidden rounded-md border border-border/40 bg-muted/40"
+                        aria-label="عرض الصورة"
+                      >
+                        <img
+                          src={img.public_url}
+                          alt={img.caption ?? "صورة المجموعة"}
+                          loading="lazy"
+                          className="h-full w-full object-cover transition group-hover:scale-110"
+                        />
+                      </button>
+                    ))}
                   </div>
-                </CardContent>
-              </Card>
-            )}
+                )}
+                {isMember && (
+                  <label className="mt-3 block cursor-pointer">
+                    <input
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={handleUploadImage}
+                      disabled={uploading}
+                    />
+                    <span className="flex w-full items-center justify-center gap-2 rounded-md bg-gradient-primary px-3 py-2 text-xs text-primary-foreground shadow-glow">
+                      {uploading ? (
+                        <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                      ) : (
+                        <ImagePlus className="h-3.5 w-3.5" />
+                      )}
+                      رفع صورة
+                    </span>
+                  </label>
+                )}
+              </aside>
 
-            {posts.length === 0 ? (
-              <Card className="border-dashed">
-                <CardContent className="py-10 text-center text-sm text-muted-foreground">
-                  لا منشورات بعد.
-                </CardContent>
-              </Card>
-            ) : (
-              posts.map((p) => {
-                const canDelete = p.author_id === user?.id || isAdmin;
-                return (
-                  <Card key={p.id}>
-                    <CardContent className="space-y-2 p-4">
-                      <div className="flex items-center justify-between">
-                        <Link to={`/users/${p.author_id}`} className="flex items-center gap-2 hover:text-primary">
-                          <Avatar className="h-8 w-8">
-                            <AvatarImage src={p.profile?.avatar_url ?? undefined} />
-                            <AvatarFallback>{initials(p.profile?.full_name, p.profile?.username)}</AvatarFallback>
-                          </Avatar>
-                          <div>
-                            <p className="text-sm font-medium">{p.profile?.full_name ?? p.profile?.username ?? "مستخدم"}</p>
-                            <p className="text-xs text-muted-foreground">
-                              {new Date(p.created_at).toLocaleString("ar")}
-                            </p>
-                          </div>
-                        </Link>
-                        {canDelete && (
-                          <Button variant="ghost" size="icon" onClick={() => handleDeletePost(p.id)} aria-label="حذف">
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        )}
+              {/* Posts feed */}
+              <div className="flex-1 space-y-4">
+                {canPost && (
+                  <Card className="glass-panel">
+                    <CardContent className="space-y-3 p-4">
+                      <Textarea
+                        value={draft}
+                        onChange={(e) => setDraft(e.target.value)}
+                        placeholder="اكتب منشوراً للمجموعة…"
+                        maxLength={4000}
+                        rows={3}
+                      />
+                      <div className="flex justify-end">
+                        <Button onClick={handlePost} disabled={posting || !draft.trim()} className="bg-gradient-primary shadow-glow">
+                          {posting ? <Loader2 className="ml-2 h-4 w-4 animate-spin" /> : <Send className="ml-2 h-4 w-4" />}
+                          نشر
+                        </Button>
                       </div>
-                      <p className="whitespace-pre-wrap text-sm">{p.content}</p>
                     </CardContent>
                   </Card>
-                );
-              })
-            )}
+                )}
+
+                {posts.length === 0 ? (
+                  <Card className="glass-panel border-dashed">
+                    <CardContent className="py-10 text-center text-sm text-muted-foreground">
+                      لا منشورات بعد.
+                    </CardContent>
+                  </Card>
+                ) : (
+                  posts.map((p) => {
+                    const canDelete = p.author_id === user?.id || isAdmin;
+                    return (
+                      <Card key={p.id} className="glass-panel">
+                        <CardContent className="space-y-2 p-4">
+                          <div className="flex items-center justify-between">
+                            <Link to={`/users/${p.author_id}`} className="flex items-center gap-2 hover:text-primary">
+                              <Avatar className="h-8 w-8">
+                                <AvatarImage src={p.profile?.avatar_url ?? undefined} />
+                                <AvatarFallback>{initials(p.profile?.full_name, p.profile?.username)}</AvatarFallback>
+                              </Avatar>
+                              <div>
+                                <p className="text-sm font-medium">{p.profile?.full_name ?? p.profile?.username ?? "مستخدم"}</p>
+                                <p className="text-xs text-muted-foreground">
+                                  {new Date(p.created_at).toLocaleString("ar")}
+                                </p>
+                              </div>
+                            </Link>
+                            {canDelete && (
+                              <Button variant="ghost" size="icon" onClick={() => handleDeletePost(p.id)} aria-label="حذف">
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            )}
+                          </div>
+                          <p className="whitespace-pre-wrap text-sm">{p.content}</p>
+                        </CardContent>
+                      </Card>
+                    );
+                  })
+                )}
+              </div>
+            </div>
           </TabsContent>
 
           <TabsContent value="images" className="space-y-4 pt-4">
