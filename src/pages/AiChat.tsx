@@ -7,12 +7,14 @@ import { Card, CardContent } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { toast } from "sonner";
 import { Bot, Loader2, Plus, Send, Trash2, User2 } from "lucide-react";
+import { useI18n } from "@/lib/i18n";
 
 interface Chat { id: string; title: string; updated_at: string; }
 interface Msg { id: string; role: "user" | "assistant"; content: string; created_at: string; }
 
 export default function AiChat() {
   const { user } = useAuth();
+  const { t, dir } = useI18n();
   const [chats, setChats] = useState<Chat[]>([]);
   const [activeId, setActiveId] = useState<string | null>(null);
   const [messages, setMessages] = useState<Msg[]>([]);
@@ -67,7 +69,7 @@ export default function AiChat() {
     if (!user) return;
     const { data, error } = await supabase
       .from("ai_chats")
-      .insert({ user_id: user.id, title: "محادثة جديدة" })
+      .insert({ user_id: user.id, title: t("ai.newChat") })
       .select()
       .single();
     if (error) { toast.error(error.message); return; }
@@ -112,7 +114,7 @@ export default function AiChat() {
     });
     if (aiErr || !aiData?.reply) {
       setSending(false);
-      toast.error(aiData?.error ?? aiErr?.message ?? "فشل الاتصال بـ AI");
+      toast.error(aiData?.error ?? aiErr?.message ?? t("ai.failed"));
       return;
     }
     await supabase.from("ai_messages")
@@ -122,24 +124,24 @@ export default function AiChat() {
   };
 
   return (
-    <div className="container py-4" dir="rtl">
+    <div className="container py-4" dir={dir}>
       <div className="grid grid-cols-1 gap-3 md:grid-cols-[260px_1fr]">
         <Card className="md:h-[calc(100vh-8rem)]">
           <CardContent className="flex h-full flex-col gap-2 p-3">
             <Button onClick={newChat} className="bg-gradient-primary shadow-glow">
-              <Plus className="ml-1 h-4 w-4" /> محادثة جديدة
+              <Plus className="ml-1 h-4 w-4" /> {t("ai.newChat")}
             </Button>
             <ScrollArea className="flex-1">
               <div className="space-y-1">
                 {chats.map((c) => (
                   <div key={c.id} className={`flex items-center justify-between gap-1 rounded-md p-2 text-sm hover:bg-muted ${activeId === c.id ? "bg-muted" : ""}`}>
                     <button onClick={() => setActiveId(c.id)} className="flex-1 truncate text-right">{c.title}</button>
-                    <Button variant="ghost" size="icon" onClick={() => deleteChat(c.id)} aria-label="حذف">
+                    <Button variant="ghost" size="icon" onClick={() => deleteChat(c.id)} aria-label={t("common.delete")}>
                       <Trash2 className="h-3.5 w-3.5" />
                     </Button>
                   </div>
                 ))}
-                {chats.length === 0 && <p className="p-2 text-xs text-muted-foreground">لا محادثات بعد.</p>}
+                {chats.length === 0 && <p className="p-2 text-xs text-muted-foreground">{t("ai.noChats")}</p>}
               </div>
             </ScrollArea>
           </CardContent>
@@ -154,12 +156,12 @@ export default function AiChat() {
                     <div className="mb-3 flex h-16 w-16 items-center justify-center rounded-full bg-gradient-primary text-primary-foreground shadow-glow">
                       <Bot className="h-8 w-8" />
                     </div>
-                    <h2 className="text-lg font-bold">🛡️ SecBot — خبير الأمن السيبراني</h2>
-                    <p className="mt-1 text-sm text-muted-foreground">اسألني عن الثغرات، تدقيق الكود، اختبار الاختراق، أو سياسات الأمن.</p>
-                    <div className="mt-4 grid w-full max-w-md gap-2 text-right text-xs">
-                      <div className="rounded-md border bg-muted/40 p-2">🔍 حلّل لي هذا الكود وابحث عن ثغرات SQL Injection</div>
-                      <div className="rounded-md border bg-muted/40 p-2">🛡️ كيف أؤمّن JWT في تطبيقي؟</div>
-                      <div className="rounded-md border bg-muted/40 p-2">📋 اقترح سياسة أمنية لشركة ناشئة</div>
+                    <h2 className="text-lg font-bold">{t("ai.heroTitle")}</h2>
+                    <p className="mt-1 text-sm text-muted-foreground">{t("ai.heroSub")}</p>
+                    <div className="mt-4 grid w-full max-w-md gap-2 text-xs">
+                      <div className="rounded-md border bg-muted/40 p-2">{t("ai.s1")}</div>
+                      <div className="rounded-md border bg-muted/40 p-2">{t("ai.s2")}</div>
+                      <div className="rounded-md border bg-muted/40 p-2">{t("ai.s3")}</div>
                     </div>
                   </div>
                 )}
@@ -175,7 +177,7 @@ export default function AiChat() {
                 ))}
                 {sending && (
                   <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                    <Loader2 className="h-3 w-3 animate-spin" /> يكتب…
+                    <Loader2 className="h-3 w-3 animate-spin" /> {t("ai.typing")}
                   </div>
                 )}
               </div>
@@ -185,7 +187,7 @@ export default function AiChat() {
                 value={draft}
                 onChange={(e) => setDraft(e.target.value)}
                 onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); send(); } }}
-                placeholder="اسأل SecBot عن الأمن السيبراني، الثغرات، أو تدقيق كودك…"
+                placeholder={t("ai.composer")}
                 rows={2}
                 className="resize-none"
               />

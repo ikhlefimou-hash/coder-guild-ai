@@ -26,6 +26,7 @@ import {
 } from "@/components/ui/select";
 import { toast } from "sonner";
 import { Flag, Loader2, Send, Star, User as UserIcon } from "lucide-react";
+import { useI18n } from "@/lib/i18n";
 
 interface Service {
   id: string;
@@ -47,15 +48,10 @@ interface Review {
   profiles: { username: string } | null;
 }
 
-const requestSchema = z.object({ message: z.string().trim().min(5, "الرسالة قصيرة").max(2000) });
-const reportSchema = z.object({
-  reason: z.string().trim().min(3).max(100),
-  description: z.string().trim().max(2000).optional(),
-});
-
 export default function ServiceDetail() {
   const { id } = useParams<{ id: string }>();
   const { user } = useAuth();
+  const { t, dir } = useI18n();
   const [service, setService] = useState<Service | null>(null);
   const [reviews, setReviews] = useState<Review[]>([]);
   const [loading, setLoading] = useState(true);
@@ -63,9 +59,16 @@ export default function ServiceDetail() {
   const [requestDialogOpen, setRequestDialogOpen] = useState(false);
   const [reportDialogOpen, setReportDialogOpen] = useState(false);
 
+  const requestSchema = z.object({ message: z.string().trim().min(5, t("sd.msgShort")).max(2000) });
+  const reportSchema = z.object({
+    reason: z.string().trim().min(3).max(100),
+    description: z.string().trim().max(2000).optional(),
+  });
+
   useEffect(() => {
     if (!id) return;
     load();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
   const load = async () => {
@@ -107,10 +110,10 @@ export default function ServiceDetail() {
     });
     setSubmitting(false);
     if (error) {
-      toast.error("تعذّر إرسال الطلب");
+      toast.error(t("sd.reqFail"));
       return;
     }
-    toast.success("تم إرسال طلبك!");
+    toast.success(t("sd.reqSent"));
     setRequestDialogOpen(false);
   };
 
@@ -123,7 +126,7 @@ export default function ServiceDetail() {
       description: (fd.get("description") as string)?.trim() || undefined,
     });
     if (!parsed.success) {
-      toast.error("بيانات البلاغ غير صحيحة");
+      toast.error(t("sd.repInvalid"));
       return;
     }
     setSubmitting(true);
@@ -136,10 +139,10 @@ export default function ServiceDetail() {
     });
     setSubmitting(false);
     if (error) {
-      toast.error("تعذّر إرسال البلاغ");
+      toast.error(t("sd.repFail"));
       return;
     }
-    toast.success("تم إرسال البلاغ. سيراجعه المسؤولون.");
+    toast.success(t("sd.repSent"));
     setReportDialogOpen(false);
   };
 
@@ -152,14 +155,14 @@ export default function ServiceDetail() {
   }
 
   if (!service) {
-    return <div className="container py-20 text-center text-muted-foreground">الخدمة غير موجودة</div>;
+    return <div className="container py-20 text-center text-muted-foreground">{t("sd.notFound")}</div>;
   }
 
   const avgRating = reviews.length ? reviews.reduce((a, r) => a + r.rating, 0) / reviews.length : 0;
   const isOwner = user?.id === service.user_id;
 
   return (
-    <div className="container max-w-4xl py-8">
+    <div className="container max-w-4xl py-8" dir={dir}>
       <div className="grid gap-6 md:grid-cols-3">
         <div className="md:col-span-2">
           <Card className="shadow-card">
@@ -179,7 +182,7 @@ export default function ServiceDetail() {
                 <div className="flex items-center gap-2 rounded-lg border border-border bg-muted/30 p-3">
                   <Star className="h-5 w-5 fill-warning text-warning" />
                   <span className="text-lg font-bold">{avgRating.toFixed(1)}</span>
-                  <span className="text-sm text-muted-foreground">من {reviews.length} تقييم</span>
+                  <span className="text-sm text-muted-foreground">{reviews.length} {t("sd.ratingsCount")}</span>
                 </div>
               )}
             </CardContent>
@@ -187,11 +190,11 @@ export default function ServiceDetail() {
 
           <Card className="mt-6 shadow-card">
             <CardHeader>
-              <CardTitle>التقييمات</CardTitle>
+              <CardTitle>{t("sd.reviews")}</CardTitle>
             </CardHeader>
             <CardContent>
               {reviews.length === 0 ? (
-                <p className="text-sm text-muted-foreground">لا توجد تقييمات بعد.</p>
+                <p className="text-sm text-muted-foreground">{t("sd.noReviews")}</p>
               ) : (
                 <div className="space-y-4">
                   {reviews.map((r) => (
@@ -244,20 +247,20 @@ export default function ServiceDetail() {
                 <DialogTrigger asChild>
                   <Button className="w-full bg-gradient-primary shadow-glow">
                     <Send className="ml-2 h-4 w-4" />
-                    طلب الخدمة
+                    {t("sd.requestService")}
                   </Button>
                 </DialogTrigger>
                 <DialogContent>
                   <DialogHeader>
-                    <DialogTitle>طلب الخدمة</DialogTitle>
-                    <DialogDescription>اشرح ما تحتاجه بدقة</DialogDescription>
+                    <DialogTitle>{t("sd.requestService")}</DialogTitle>
+                    <DialogDescription>{t("sd.explainNeed")}</DialogDescription>
                   </DialogHeader>
                   <form onSubmit={handleRequest} className="space-y-4">
-                    <Textarea name="message" required minLength={5} maxLength={2000} rows={5} placeholder="رسالتك..." />
+                    <Textarea name="message" required minLength={5} maxLength={2000} rows={5} placeholder={t("sd.yourMessage")} />
                     <DialogFooter>
                       <Button type="submit" disabled={submitting} className="bg-gradient-primary">
                         {submitting && <Loader2 className="ml-2 h-4 w-4 animate-spin" />}
-                        إرسال
+                        {t("common.send")}
                       </Button>
                     </DialogFooter>
                   </form>
@@ -268,38 +271,38 @@ export default function ServiceDetail() {
                 <DialogTrigger asChild>
                   <Button variant="outline" className="w-full">
                     <Flag className="ml-2 h-4 w-4" />
-                    تبليغ
+                    {t("sd.report")}
                   </Button>
                 </DialogTrigger>
                 <DialogContent>
                   <DialogHeader>
-                    <DialogTitle>الإبلاغ عن خدمة</DialogTitle>
-                    <DialogDescription>أخبرنا بسبب البلاغ وسنراجعه</DialogDescription>
+                    <DialogTitle>{t("sd.reportTitle")}</DialogTitle>
+                    <DialogDescription>{t("sd.reportDesc")}</DialogDescription>
                   </DialogHeader>
                   <form onSubmit={handleReport} className="space-y-4">
                     <div className="space-y-2">
-                      <Label>السبب</Label>
+                      <Label>{t("sd.reason")}</Label>
                       <Select name="reason" required>
                         <SelectTrigger>
-                          <SelectValue placeholder="اختر السبب" />
+                          <SelectValue placeholder={t("sd.pickReason")} />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="احتيال">احتيال</SelectItem>
-                          <SelectItem value="محتوى مسيء">محتوى مسيء</SelectItem>
-                          <SelectItem value="سبام">سبام</SelectItem>
-                          <SelectItem value="معلومات مضللة">معلومات مضللة</SelectItem>
-                          <SelectItem value="أخرى">أخرى</SelectItem>
+                          <SelectItem value="fraud">{t("sd.reason.fraud")}</SelectItem>
+                          <SelectItem value="offensive">{t("sd.reason.offensive")}</SelectItem>
+                          <SelectItem value="spam">{t("sd.reason.spam")}</SelectItem>
+                          <SelectItem value="misleading">{t("sd.reason.misleading")}</SelectItem>
+                          <SelectItem value="other">{t("sd.reason.other")}</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
                     <div className="space-y-2">
-                      <Label>تفاصيل (اختياري)</Label>
+                      <Label>{t("sd.details")}</Label>
                       <Textarea name="description" maxLength={2000} rows={4} />
                     </div>
                     <DialogFooter>
                       <Button type="submit" disabled={submitting} variant="destructive">
                         {submitting && <Loader2 className="ml-2 h-4 w-4 animate-spin" />}
-                        إرسال البلاغ
+                        {t("sd.sendReport")}
                       </Button>
                     </DialogFooter>
                   </form>
@@ -310,7 +313,7 @@ export default function ServiceDetail() {
 
           {!user && (
             <Button asChild className="w-full bg-gradient-primary">
-              <Link to="/auth">سجّل الدخول للطلب</Link>
+              <Link to="/auth">{t("sd.signInToRequest")}</Link>
             </Button>
           )}
         </aside>

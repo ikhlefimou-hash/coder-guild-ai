@@ -2,26 +2,27 @@ import { Link } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Bot, Users, BookOpen, ShoppingBag, Code2, MessageSquare, Settings, Lightbulb } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
-
-const modules = [
-  { title: "المساعد الذكي", desc: "اطرح أي سؤال برمجي واحصل على إجابة فورية.", url: "/dashboard/ai", icon: Bot },
-  { title: "المجموعات", desc: "انضم لمجموعات عامة أو خاصة وشارك المعرفة.", url: "/dashboard/groups", icon: Users },
-  { title: "الدروس", desc: "مسارات تعليمية من المبتدئ للمحترف.", url: "/dashboard/lessons", icon: BookOpen },
-  { title: "الأفكار للبيع", desc: "أفكار وأكواد جاهزة للشراء.", url: "/dashboard/ideas", icon: Lightbulb },
-  { title: "سوق المشاريع", desc: "تصفح وبيع مشاريع برمجية جاهزة.", url: "/dashboard/projects", icon: ShoppingBag },
-  { title: "المبرمجون", desc: "اعثر على مبرمجين مميزين للتعاون.", url: "/dashboard/programmers", icon: Code2 },
-  { title: "الرسائل", desc: "تواصل مباشر مع المبرمجين والعملاء.", url: "/dashboard/messages", icon: MessageSquare },
-  { title: "الإعدادات", desc: "خصص حسابك والمظهر واللغة.", url: "/dashboard/settings", icon: Settings },
-];
+import { useI18n } from "@/lib/i18n";
 
 export default function Dashboard() {
   const { user } = useAuth();
+  const { t, dir } = useI18n();
+  const modules = [
+    { title: t("nav.ai"), desc: t("dashboard.mod.ai.desc"), url: "/dashboard/ai", icon: Bot },
+    { title: t("nav.groups"), desc: t("dashboard.mod.groups.desc"), url: "/dashboard/groups", icon: Users },
+    { title: t("nav.lessons"), desc: t("dashboard.mod.lessons.desc"), url: "/dashboard/lessons", icon: BookOpen },
+    { title: t("nav.ideas"), desc: t("dashboard.mod.ideas.desc"), url: "/dashboard/ideas", icon: Lightbulb },
+    { title: t("nav.projects"), desc: t("dashboard.mod.projects.desc"), url: "/dashboard/projects", icon: ShoppingBag },
+    { title: t("nav.programmers"), desc: t("dashboard.mod.programmers.desc"), url: "/dashboard/programmers", icon: Code2 },
+    { title: t("nav.messages"), desc: t("dashboard.mod.messages.desc"), url: "/dashboard/messages", icon: MessageSquare },
+    { title: t("nav.settings"), desc: t("dashboard.mod.settings.desc"), url: "/dashboard/settings", icon: Settings },
+  ];
   return (
-    <div className="container py-6" dir="rtl">
+    <div className="container py-6" dir={dir}>
       <div className="mb-6">
-        <h1 className="text-2xl font-bold">مرحباً بك في DevHub</h1>
+        <h1 className="text-2xl font-bold">{t("dashboard.welcome")}</h1>
         <p className="text-sm text-muted-foreground">
-          {user?.email ? `مسجّل الدخول كـ ${user.email}` : "منصة المبرمجين للتعلم والتعاون"}
+          {user?.email ? `${t("dashboard.loggedAs")} ${user.email}` : t("common.tagline")}
         </p>
       </div>
 

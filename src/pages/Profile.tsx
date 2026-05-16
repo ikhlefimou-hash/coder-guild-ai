@@ -13,6 +13,7 @@ import {
 import { toast } from "sonner";
 import { CheckCircle2, Clock, Loader2, Star, XCircle } from "lucide-react";
 import { z } from "zod";
+import { useI18n } from "@/lib/i18n";
 
 interface Profile {
   username: string;
@@ -41,6 +42,7 @@ const reviewSchema = z.object({
 
 export default function Profile() {
   const { user } = useAuth();
+  const { t, dir } = useI18n();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [services, setServices] = useState<MyService[]>([]);
   const [incoming, setIncoming] = useState<Request[]>([]);
@@ -50,8 +52,9 @@ export default function Profile() {
   const [reviewTarget, setReviewTarget] = useState<Request | null>(null);
 
   useEffect(() => {
-    document.title = "ملفي الشخصي | DevHub";
+    document.title = `${t("profile.title")} | DevHub`;
     if (user) load();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
 
   const load = async () => {
@@ -72,9 +75,9 @@ export default function Profile() {
 
   const updateRequest = async (req: Request, status: string) => {
     const { error } = await supabase.from("service_requests").update({ status: status as any }).eq("id", req.id);
-    if (error) toast.error("تعذّر التحديث");
+    if (error) toast.error(t("profile.updateFail"));
     else {
-      toast.success("تم التحديث");
+      toast.success(t("profile.updated"));
       load();
     }
   };
@@ -92,9 +95,9 @@ export default function Profile() {
       .from("profiles")
       .update({ full_name: fullName || null, bio: bio || null, skills, experience_level: level as any })
       .eq("id", user.id);
-    if (error) toast.error("فشل الحفظ");
+    if (error) toast.error(t("profile.saveFail"));
     else {
-      toast.success("تم الحفظ");
+      toast.success(t("profile.saved"));
       setEditOpen(false);
       load();
     }
@@ -109,7 +112,7 @@ export default function Profile() {
       comment: (fd.get("comment") as string)?.trim() || undefined,
     });
     if (!parsed.success) {
-      toast.error("التقييم غير صحيح");
+      toast.error(t("profile.invalidRating"));
       return;
     }
     const { error } = await supabase.from("reviews").insert({
@@ -120,9 +123,9 @@ export default function Profile() {
       rating: parsed.data.rating,
       comment: parsed.data.comment ?? null,
     });
-    if (error) toast.error("تعذّر إرسال التقييم (قد يكون مرسلاً مسبقاً)");
+    if (error) toast.error(t("profile.reviewFail"));
     else {
-      toast.success("شكراً على تقييمك!");
+      toast.success(t("profile.reviewSent"));
       setReviewTarget(null);
     }
   };
@@ -136,7 +139,7 @@ export default function Profile() {
   }
 
   return (
-    <div className="container max-w-5xl space-y-6 py-8">
+    <div className="container max-w-5xl space-y-6 py-8" dir={dir}>
       <Card className="shadow-card">
         <CardHeader>
           <div className="flex items-start justify-between">
@@ -144,7 +147,7 @@ export default function Profile() {
               <CardTitle className="text-2xl">@{profile?.username}</CardTitle>
               {profile?.full_name && <p className="mt-1 text-muted-foreground">{profile.full_name}</p>}
             </div>
-            <Button variant="outline" onClick={() => setEditOpen(true)}>تعديل الملف</Button>
+            <Button variant="outline" onClick={() => setEditOpen(true)}>{t("profile.editBtn")}</Button>
           </div>
         </CardHeader>
         <CardContent className="space-y-3">
@@ -155,18 +158,18 @@ export default function Profile() {
             ))}
           </div>
           <div className="flex flex-wrap gap-3 pt-2 text-sm text-muted-foreground">
-            <span>المستوى: <strong className="text-foreground">{profile?.experience_level}</strong></span>
+            <span>{t("profile.level")}: <strong className="text-foreground">{profile?.experience_level}</strong></span>
             <span>•</span>
-            <span>درجة الثقة: <strong className="text-success">{profile?.trust_score}</strong></span>
+            <span>{t("profile.trust")}: <strong className="text-success">{profile?.trust_score}</strong></span>
           </div>
         </CardContent>
       </Card>
 
       <Card className="shadow-card">
-        <CardHeader><CardTitle>خدماتي</CardTitle></CardHeader>
+        <CardHeader><CardTitle>{t("profile.myServices")}</CardTitle></CardHeader>
         <CardContent>
           {services.length === 0 ? (
-            <p className="text-sm text-muted-foreground">لا خدمات بعد. <Link to="/dashboard/projects/new" className="text-primary">عرض خدمة</Link></p>
+            <p className="text-sm text-muted-foreground">{t("profile.noServices")} <Link to="/dashboard/projects/new" className="text-primary">{t("profile.offerService")}</Link></p>
           ) : (
             <div className="space-y-2">
               {services.map((s) => (
@@ -181,10 +184,10 @@ export default function Profile() {
       </Card>
 
       <Card className="shadow-card">
-        <CardHeader><CardTitle>طلبات واردة على خدماتي</CardTitle></CardHeader>
+        <CardHeader><CardTitle>{t("profile.incoming")}</CardTitle></CardHeader>
         <CardContent>
           {incoming.length === 0 ? (
-            <p className="text-sm text-muted-foreground">لا طلبات.</p>
+            <p className="text-sm text-muted-foreground">{t("profile.noIncoming")}</p>
           ) : (
             <div className="space-y-3">
               {incoming.map((r) => (
@@ -196,12 +199,12 @@ export default function Profile() {
                   <p className="mb-3 text-sm text-foreground/80">{r.message}</p>
                   {r.status === "pending" && (
                     <div className="flex gap-2">
-                      <Button size="sm" onClick={() => updateRequest(r, "accepted")}>قبول</Button>
-                      <Button size="sm" variant="outline" onClick={() => updateRequest(r, "rejected")}>رفض</Button>
+                      <Button size="sm" onClick={() => updateRequest(r, "accepted")}>{t("profile.accept")}</Button>
+                      <Button size="sm" variant="outline" onClick={() => updateRequest(r, "rejected")}>{t("profile.reject")}</Button>
                     </div>
                   )}
                   {r.status === "accepted" && (
-                    <Button size="sm" variant="secondary" onClick={() => updateRequest(r, "completed")}>وضع كمكتمل</Button>
+                    <Button size="sm" variant="secondary" onClick={() => updateRequest(r, "completed")}>{t("profile.markCompleted")}</Button>
                   )}
                 </div>
               ))}
@@ -211,10 +214,10 @@ export default function Profile() {
       </Card>
 
       <Card className="shadow-card">
-        <CardHeader><CardTitle>طلباتي</CardTitle></CardHeader>
+        <CardHeader><CardTitle>{t("profile.outgoing")}</CardTitle></CardHeader>
         <CardContent>
           {outgoing.length === 0 ? (
-            <p className="text-sm text-muted-foreground">لم تطلب خدمات بعد.</p>
+            <p className="text-sm text-muted-foreground">{t("profile.noOutgoing")}</p>
           ) : (
             <div className="space-y-3">
               {outgoing.map((r) => (
@@ -228,7 +231,7 @@ export default function Profile() {
                   {r.status === "completed" && (
                     <Button size="sm" variant="outline" onClick={() => setReviewTarget(r)}>
                       <Star className="ml-2 h-4 w-4" />
-                      أضف تقييماً
+                      {t("profile.addReview")}
                     </Button>
                   )}
                 </div>
@@ -238,58 +241,56 @@ export default function Profile() {
         </CardContent>
       </Card>
 
-      {/* Edit profile */}
       <Dialog open={editOpen} onOpenChange={setEditOpen}>
         <DialogContent>
-          <DialogHeader><DialogTitle>تعديل الملف الشخصي</DialogTitle></DialogHeader>
+          <DialogHeader><DialogTitle>{t("profile.edit")}</DialogTitle></DialogHeader>
           <form onSubmit={saveProfile} className="space-y-4">
             <div className="space-y-2">
-              <Label>الاسم الكامل</Label>
+              <Label>{t("profile.fullName")}</Label>
               <input name="full_name" defaultValue={profile?.full_name ?? ""} maxLength={100} className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm" />
             </div>
             <div className="space-y-2">
-              <Label>نبذة</Label>
+              <Label>{t("profile.bio")}</Label>
               <Textarea name="bio" defaultValue={profile?.bio ?? ""} maxLength={500} rows={3} />
             </div>
             <div className="space-y-2">
-              <Label>المهارات (مفصولة بفواصل)</Label>
+              <Label>{t("profile.skills")}</Label>
               <input name="skills" defaultValue={profile?.skills?.join(", ") ?? ""} className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm" placeholder="React, Node.js, Python" />
             </div>
             <div className="space-y-2">
-              <Label>المستوى</Label>
+              <Label>{t("profile.level")}</Label>
               <select name="experience_level" defaultValue={profile?.experience_level ?? "beginner"} className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm">
-                <option value="beginner">مبتدئ</option>
-                <option value="intermediate">متوسط</option>
-                <option value="advanced">متقدم</option>
-                <option value="expert">خبير</option>
+                <option value="beginner">{t("profile.lvlBeginner")}</option>
+                <option value="intermediate">{t("profile.lvlIntermediate")}</option>
+                <option value="advanced">{t("profile.lvlAdvanced")}</option>
+                <option value="expert">{t("profile.lvlExpert")}</option>
               </select>
             </div>
             <DialogFooter>
-              <Button type="submit" className="bg-gradient-primary">حفظ</Button>
+              <Button type="submit" className="bg-gradient-primary">{t("common.save")}</Button>
             </DialogFooter>
           </form>
         </DialogContent>
       </Dialog>
 
-      {/* Review */}
       <Dialog open={!!reviewTarget} onOpenChange={(o) => !o && setReviewTarget(null)}>
         <DialogContent>
-          <DialogHeader><DialogTitle>تقييم الخدمة</DialogTitle></DialogHeader>
+          <DialogHeader><DialogTitle>{t("profile.review")}</DialogTitle></DialogHeader>
           <form onSubmit={submitReview} className="space-y-4">
             <div className="space-y-2">
-              <Label>التقييم (1-5)</Label>
+              <Label>{t("profile.rating")}</Label>
               <select name="rating" required className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm">
                 {[5, 4, 3, 2, 1].map((n) => (
-                  <option key={n} value={n}>{n} نجوم</option>
+                  <option key={n} value={n}>{n} {t("profile.stars")}</option>
                 ))}
               </select>
             </div>
             <div className="space-y-2">
-              <Label>تعليق (اختياري)</Label>
+              <Label>{t("profile.comment")}</Label>
               <Textarea name="comment" maxLength={1000} rows={4} />
             </div>
             <DialogFooter>
-              <Button type="submit" className="bg-gradient-primary">إرسال</Button>
+              <Button type="submit" className="bg-gradient-primary">{t("common.send")}</Button>
             </DialogFooter>
           </form>
         </DialogContent>
@@ -299,12 +300,13 @@ export default function Profile() {
 }
 
 function StatusBadge({ status }: { status: string }) {
+  const { t } = useI18n();
   const map: Record<string, { label: string; icon: any; className: string }> = {
-    pending: { label: "قيد الانتظار", icon: Clock, className: "bg-warning/20 text-warning" },
-    accepted: { label: "مقبول", icon: CheckCircle2, className: "bg-accent/20 text-accent" },
-    rejected: { label: "مرفوض", icon: XCircle, className: "bg-destructive/20 text-destructive" },
-    completed: { label: "مكتمل", icon: CheckCircle2, className: "bg-success/20 text-success" },
-    cancelled: { label: "ملغى", icon: XCircle, className: "bg-muted text-muted-foreground" },
+    pending: { label: t("profile.status.pending"), icon: Clock, className: "bg-warning/20 text-warning" },
+    accepted: { label: t("profile.status.accepted"), icon: CheckCircle2, className: "bg-accent/20 text-accent" },
+    rejected: { label: t("profile.status.rejected"), icon: XCircle, className: "bg-destructive/20 text-destructive" },
+    completed: { label: t("profile.status.completed"), icon: CheckCircle2, className: "bg-success/20 text-success" },
+    cancelled: { label: t("profile.status.cancelled"), icon: XCircle, className: "bg-muted text-muted-foreground" },
   };
   const v = map[status] ?? map.pending;
   const Icon = v.icon;

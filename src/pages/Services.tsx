@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Loader2, Search, Star, Sparkles } from "lucide-react";
+import { useI18n } from "@/lib/i18n";
 
 interface ServiceRow {
   id: string;
@@ -27,9 +28,10 @@ export default function Services() {
   const [ratings, setRatings] = useState<RatingMap>({});
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
+  const { t, dir } = useI18n();
 
   useEffect(() => {
-    document.title = "سوق الخدمات | DevHub";
+    document.title = "DevHub";
     load();
   }, []);
 
@@ -67,25 +69,23 @@ export default function Services() {
   );
 
   return (
-    <div className="container py-8">
+    <div className="container py-8" dir={dir}>
       <section className="mb-10 text-center">
         <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-4 py-1.5 text-sm">
           <Sparkles className="h-4 w-4 text-primary" />
-          <span className="text-foreground">منصة المبرمجين العربية</span>
+          <span className="text-foreground">{t("svc.platformTag")}</span>
         </div>
         <h1 className="mb-3 text-4xl font-bold tracking-tight md:text-5xl">
-          اعثر على <span className="text-gradient">أفضل المبرمجين</span>
+          {t("svc.title")} <span className="text-gradient">{t("svc.titleAccent")}</span>
         </h1>
-        <p className="mx-auto max-w-2xl text-muted-foreground">
-          تصفح خدمات البرمجة، اطلب ما تحتاجه، وقيّم بكل أمان وشفافية
-        </p>
+        <p className="mx-auto max-w-2xl text-muted-foreground">{t("svc.sub")}</p>
       </section>
 
       <div className="mx-auto mb-8 flex max-w-2xl items-center gap-2">
         <div className="relative flex-1">
           <Search className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <Input
-            placeholder="ابحث عن خدمة..."
+            placeholder={t("svc.searchPlaceholder")}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="pr-10"
@@ -93,7 +93,7 @@ export default function Services() {
           />
         </div>
         <Button asChild className="bg-gradient-primary shadow-glow">
-          <Link to="/dashboard/projects/new">عرض خدمة</Link>
+          <Link to="/dashboard/projects/new">{t("svc.offerService")}</Link>
         </Button>
       </div>
 
@@ -103,7 +103,7 @@ export default function Services() {
         </div>
       ) : filtered.length === 0 ? (
         <div className="py-20 text-center text-muted-foreground">
-          {search ? "لا نتائج للبحث." : "لا توجد خدمات بعد. كن أول من يعرض خدمة!"}
+          {search ? t("svc.noResults") : t("svc.noServices")}
         </div>
       ) : (
         <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
@@ -134,7 +134,7 @@ export default function Services() {
                           <span className="text-muted-foreground">({r.count})</span>
                         </>
                       ) : (
-                        <span className="text-xs text-muted-foreground">جديد</span>
+                        <span className="text-xs text-muted-foreground">{t("common.new")}</span>
                       )}
                     </div>
                     <div className="text-lg font-bold text-gradient">${s.price}</div>

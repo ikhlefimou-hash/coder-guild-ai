@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/dialog";
 import { Loader2, Plus, Lightbulb, Trash2, Code2 } from "lucide-react";
 import { toast } from "sonner";
+import { useI18n } from "@/lib/i18n";
 
 interface Idea {
   id: string; seller_id: string; title: string; description: string;
@@ -20,6 +21,7 @@ interface Idea {
 
 export default function Ideas() {
   const { user } = useAuth();
+  const { t, dir } = useI18n();
   const [list, setList] = useState<Idea[]>([]);
   const [loading, setLoading] = useState(true);
   const [open, setOpen] = useState(false);
@@ -46,7 +48,7 @@ export default function Ideas() {
   const create = async () => {
     if (!user) return;
     if (!form.title.trim() || !form.description.trim()) {
-      toast.error("العنوان والوصف مطلوبان");
+      toast.error(t("les.reqTitleDesc"));
       return;
     }
     setSaving(true);
@@ -62,7 +64,7 @@ export default function Ideas() {
     });
     setSaving(false);
     if (error) { toast.error(error.message); return; }
-    toast.success("تم نشر الفكرة");
+    toast.success(t("ideas.published"));
     setOpen(false);
     setForm({ title: "", description: "", category: "", cover_url: "", preview_code: "", full_code: "", price: "0" });
     load();
@@ -71,35 +73,35 @@ export default function Ideas() {
   const remove = async (id: string) => {
     const { error } = await supabase.from("ideas").delete().eq("id", id);
     if (error) { toast.error(error.message); return; }
-    toast.success("تم الحذف");
+    toast.success(t("les.deleted"));
     load();
   };
 
   return (
-    <div className="container py-4" dir="rtl">
+    <div className="container py-4" dir={dir}>
       <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
         <div>
-          <h1 className="text-2xl font-bold">الأفكار للبيع</h1>
-          <p className="text-sm text-muted-foreground">أفكار وأكواد جاهزة مع شرح</p>
+          <h1 className="text-2xl font-bold">{t("ideas.title")}</h1>
+          <p className="text-sm text-muted-foreground">{t("ideas.sub")}</p>
         </div>
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger asChild>
-            <Button className="bg-gradient-primary shadow-glow"><Plus className="ml-1 h-4 w-4" /> أضف فكرة</Button>
+            <Button className="bg-gradient-primary shadow-glow"><Plus className="ml-1 h-4 w-4" /> {t("ideas.add")}</Button>
           </DialogTrigger>
-          <DialogContent dir="rtl" className="max-w-lg">
-            <DialogHeader><DialogTitle>فكرة جديدة</DialogTitle></DialogHeader>
+          <DialogContent dir={dir} className="max-w-lg">
+            <DialogHeader><DialogTitle>{t("ideas.newTitle")}</DialogTitle></DialogHeader>
             <div className="space-y-2">
-              <Input placeholder="العنوان" value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} />
-              <Textarea placeholder="الوصف / الشرح" value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} />
-              <Input placeholder="التصنيف" value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })} />
-              <Input placeholder="رابط الصورة" value={form.cover_url} onChange={(e) => setForm({ ...form, cover_url: e.target.value })} />
-              <Textarea placeholder="معاينة الكود (تظهر للجميع)" value={form.preview_code} onChange={(e) => setForm({ ...form, preview_code: e.target.value })} className="font-mono text-xs" />
-              <Textarea placeholder="الكود الكامل (مخفي)" value={form.full_code} onChange={(e) => setForm({ ...form, full_code: e.target.value })} className="font-mono text-xs" />
-              <Input type="number" placeholder="السعر (0 = مجاني)" value={form.price} onChange={(e) => setForm({ ...form, price: e.target.value })} />
+              <Input placeholder={t("ideas.phTitle")} value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} />
+              <Textarea placeholder={t("ideas.phDesc")} value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} />
+              <Input placeholder={t("ideas.phCat")} value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })} />
+              <Input placeholder={t("ideas.phCover")} value={form.cover_url} onChange={(e) => setForm({ ...form, cover_url: e.target.value })} />
+              <Textarea placeholder={t("ideas.phPreview")} value={form.preview_code} onChange={(e) => setForm({ ...form, preview_code: e.target.value })} className="font-mono text-xs" />
+              <Textarea placeholder={t("ideas.phFull")} value={form.full_code} onChange={(e) => setForm({ ...form, full_code: e.target.value })} className="font-mono text-xs" />
+              <Input type="number" placeholder={t("ideas.phPrice")} value={form.price} onChange={(e) => setForm({ ...form, price: e.target.value })} />
             </div>
             <DialogFooter>
               <Button onClick={create} disabled={saving} className="bg-gradient-primary shadow-glow">
-                {saving ? <Loader2 className="ml-1 h-4 w-4 animate-spin" /> : null} نشر
+                {saving ? <Loader2 className="ml-1 h-4 w-4 animate-spin" /> : null} {t("common.publish")}
               </Button>
             </DialogFooter>
           </DialogContent>
@@ -109,7 +111,7 @@ export default function Ideas() {
       {loading ? (
         <div className="flex justify-center py-16"><Loader2 className="h-6 w-6 animate-spin text-primary" /></div>
       ) : list.length === 0 ? (
-        <Card className="border-dashed"><CardContent className="py-10 text-center text-sm text-muted-foreground">لا أفكار بعد.</CardContent></Card>
+        <Card className="border-dashed"><CardContent className="py-10 text-center text-sm text-muted-foreground">{t("ideas.empty")}</CardContent></Card>
       ) : (
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {list.map((i) => (
@@ -128,16 +130,16 @@ export default function Ideas() {
                 <p className="line-clamp-2 text-xs text-muted-foreground">{i.description}</p>
                 <div className="flex flex-wrap items-center gap-1">
                   <Badge variant={i.price === 0 ? "secondary" : "default"}>
-                    {i.price === 0 ? "مجاني" : `${i.price} د.ج`}
+                    {i.price === 0 ? t("common.free") : `${i.price} ${t("les.currency")}`}
                   </Badge>
                   {i.category && <Badge variant="outline">{i.category}</Badge>}
                 </div>
                 <div className="flex justify-between gap-2">
                   <Button size="sm" variant="outline" onClick={() => setView(i)}>
-                    <Code2 className="ml-1 h-4 w-4" /> عرض
+                    <Code2 className="ml-1 h-4 w-4" /> {t("ideas.view")}
                   </Button>
                   {user?.id === i.seller_id && (
-                    <Button size="icon" variant="ghost" onClick={() => remove(i.id)} aria-label="حذف">
+                    <Button size="icon" variant="ghost" onClick={() => remove(i.id)} aria-label={t("common.delete")}>
                       <Trash2 className="h-4 w-4" />
                     </Button>
                   )}
@@ -149,7 +151,7 @@ export default function Ideas() {
       )}
 
       <Dialog open={!!view} onOpenChange={(o) => !o && setView(null)}>
-        <DialogContent dir="rtl" className="max-w-2xl">
+        <DialogContent dir={dir} className="max-w-2xl">
           <DialogHeader><DialogTitle>{view?.title}</DialogTitle></DialogHeader>
           {view && (
             <div className="space-y-3">
@@ -160,7 +162,7 @@ export default function Ideas() {
                 </pre>
               )}
               {view.price > 0 && (
-                <p className="text-xs text-muted-foreground">الكود الكامل متاح بعد الشراء ({view.price} د.ج).</p>
+                <p className="text-xs text-muted-foreground">{t("ideas.fullAfterBuy")} ({view.price} {t("les.currency")}).</p>
               )}
             </div>
           )}
