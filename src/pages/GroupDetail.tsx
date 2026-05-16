@@ -34,7 +34,16 @@ import {
   X,
   ImagePlus,
   Images,
+  Mic,
+  LogOut,
+  Code2,
+  LayoutDashboard,
+  Bot,
+  Users,
+  BookOpen,
+  MessageSquare,
 } from "lucide-react";
+import { useI18n } from "@/lib/i18n";
 import {
   Dialog,
   DialogContent,
