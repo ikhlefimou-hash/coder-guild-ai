@@ -8,6 +8,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Send, Search } from "lucide-react";
 import { toast } from "sonner";
+import { useI18n } from "@/lib/i18n";
 
 interface Profile {
   id: string;
@@ -25,6 +26,7 @@ interface DM {
 
 export default function Messages() {
   const { user } = useAuth();
+  const { t, dir } = useI18n();
   const [params, setParams] = useSearchParams();
   const peerId = params.get("with");
 
@@ -36,7 +38,6 @@ export default function Messages() {
   const [searchResults, setSearchResults] = useState<Profile[]>([]);
   const scrollRef = useRef<HTMLDivElement>(null);
 
-  // Load conversations list
   const loadConversations = useCallback(async () => {
     if (!user?.id) return;
     const { data: dms } = await supabase
@@ -52,7 +53,6 @@ export default function Messages() {
       const cur = byPeer.get(pid);
       if (!cur) byPeer.set(pid, { last: m, unread: 0 });
     }
-    // count unread
     const { data: unreadRows } = await supabase
       .from("direct_messages")
       .select("sender_id")
@@ -80,7 +80,6 @@ export default function Messages() {
     setConversations(list);
   }, [user?.id]);
 
-  // Realtime DM subscription
   useEffect(() => {
     if (!user) return;
     loadConversations();
@@ -110,7 +109,6 @@ export default function Messages() {
               next.sort((a, b) => +new Date(b.last.created_at) - +new Date(a.last.created_at));
               return next;
             }
-            // new conversation - fetch peer profile
             supabase
               .from("profiles")
               .select("id,username,full_name,avatar_url")
@@ -150,7 +148,6 @@ export default function Messages() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user?.id, peerId, loadConversations]);
 
-  // Load peer + messages when peerId changes
   useEffect(() => {
     if (!user || !peerId) {
       setPeer(null);
@@ -172,7 +169,6 @@ export default function Messages() {
         )
         .order("created_at", { ascending: true });
       setMessages((msgs ?? []) as DM[]);
-      // mark unread as read
       await supabase
         .from("direct_messages")
         .update({ read_at: new Date().toISOString() })
@@ -193,16 +189,15 @@ export default function Messages() {
     const { error } = await supabase
       .from("direct_messages")
       .insert({ sender_id: user.id, recipient_id: peerId, content });
-    if (error) toast.error("فشل إرسال الرسالة");
+    if (error) toast.error(t("msg.sendFail"));
   };
 
-  // user search
   useEffect(() => {
     if (!search.trim()) {
       setSearchResults([]);
       return;
     }
-    const t = setTimeout(async () => {
+    const tmr = setTimeout(async () => {
       const { data } = await supabase
         .from("profiles")
         .select("id,username,full_name,avatar_url")
@@ -211,30 +206,30 @@ export default function Messages() {
         .limit(10);
       setSearchResults((data ?? []) as Profile[]);
     }, 250);
-    return () => clearTimeout(t);
+    return () => clearTimeout(tmr);
   }, [search, user?.id]);
 
   const initials = (p: Profile) => (p.full_name || p.username || "?").slice(0, 2);
+  const sideClass = dir === "rtl" ? "border-l" : "border-r";
 
   return (
-    <div className="flex h-[calc(100vh-3.5rem)]" dir="rtl">
-      {/* Sidebar list */}
-      <aside className="flex w-72 shrink-0 flex-col border-l bg-card">
+    <div className="flex h-[calc(100vh-3.5rem)]" dir={dir}>
+      <aside className={`flex w-72 shrink-0 flex-col ${sideClass} bg-card`}>
         <div className="border-b p-3">
           <div className="relative">
-            <Search className="absolute right-2 top-2.5 h-4 w-4 text-muted-foreground" />
+            <Search className={`absolute ${dir === "rtl" ? "right-2" : "left-2"} top-2.5 h-4 w-4 text-muted-foreground`} />
             <Input
-              placeholder="ابحث عن مستخدم لبدء محادثة..."
+              placeholder={t("msg.searchUser")}
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="pr-8"
+              className={dir === "rtl" ? "pr-8" : "pl-8"}
             />
           </div>
         </div>
         <ScrollArea className="flex-1">
           {searchResults.length > 0 ? (
             <div className="p-2">
-              <p className="px-2 pb-1 text-xs text-muted-foreground">نتائج البحث</p>
+              <p className="px-2 pb-1 text-xs text-muted-foreground">{t("common.searchResults")}</p>
               {searchResults.map((p) => (
                 <button
                   key={p.id}
@@ -242,7 +237,7 @@ export default function Messages() {
                     setParams({ with: p.id });
                     setSearch("");
                   }}
-                  className="flex w-full items-center gap-2 rounded p-2 text-right hover:bg-accent"
+                  className="flex w-full items-center gap-2 rounded p-2 hover:bg-accent"
                 >
                   <Avatar className="h-8 w-8">
                     <AvatarImage src={p.avatar_url ?? undefined} />
@@ -268,14 +263,14 @@ export default function Messages() {
             if (filtered.length === 0)
               return (
                 <p className="p-4 text-center text-sm text-muted-foreground">
-                  {q ? "لا توجد نتائج مطابقة" : "لا توجد محادثات بعد"}
+                  {q ? t("msg.noMatches") : t("msg.noConvs")}
                 </p>
               );
             return filtered.map((c) => (
               <button
                 key={c.peer.id}
                 onClick={() => setParams({ with: c.peer.id })}
-                className={`flex w-full items-center gap-2 border-b p-3 text-right hover:bg-accent ${
+                className={`flex w-full items-center gap-2 border-b p-3 hover:bg-accent ${
                   peerId === c.peer.id ? "bg-accent" : ""
                 }`}
               >
@@ -300,11 +295,10 @@ export default function Messages() {
         </ScrollArea>
       </aside>
 
-      {/* Chat area */}
       <section className="flex flex-1 flex-col">
         {!peer ? (
           <div className="flex flex-1 items-center justify-center text-muted-foreground">
-            اختر محادثة أو ابحث عن مستخدم لبدء محادثة جديدة
+            {t("msg.pickConv")}
           </div>
         ) : (
           <>
@@ -344,7 +338,7 @@ export default function Messages() {
               <Input
                 value={text}
                 onChange={(e) => setText(e.target.value)}
-                placeholder="اكتب رسالة..."
+                placeholder={t("msg.composer")}
                 className="flex-1"
               />
               <Button type="submit" size="icon" disabled={!text.trim()}>

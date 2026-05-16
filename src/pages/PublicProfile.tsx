@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Loader2, Star } from "lucide-react";
+import { useI18n } from "@/lib/i18n";
 
 interface PublicProfile {
   id: string;
@@ -19,6 +20,7 @@ interface RevRow { id: string; rating: number; comment: string | null; created_a
 
 export default function PublicProfilePage() {
   const { id } = useParams<{ id: string }>();
+  const { t, dir } = useI18n();
   const [profile, setProfile] = useState<PublicProfile | null>(null);
   const [services, setServices] = useState<SvcRow[]>([]);
   const [reviews, setReviews] = useState<RevRow[]>([]);
@@ -42,12 +44,12 @@ export default function PublicProfilePage() {
   }, [id]);
 
   if (loading) return <div className="flex justify-center py-20"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>;
-  if (!profile) return <div className="container py-20 text-center text-muted-foreground">المستخدم غير موجود</div>;
+  if (!profile) return <div className="container py-20 text-center text-muted-foreground">{t("common.userNotFound")}</div>;
 
   const avg = reviews.length ? reviews.reduce((a, x) => a + x.rating, 0) / reviews.length : 0;
 
   return (
-    <div className="container max-w-4xl space-y-6 py-8">
+    <div className="container max-w-4xl space-y-6 py-8" dir={dir}>
       <Card className="shadow-card">
         <CardHeader>
           <CardTitle className="text-2xl">@{profile.username}</CardTitle>
@@ -59,7 +61,7 @@ export default function PublicProfilePage() {
             {profile.skills?.map((sk) => <Badge key={sk} variant="secondary">{sk}</Badge>)}
           </div>
           <div className="flex flex-wrap gap-4 text-sm text-muted-foreground">
-            <span>المستوى: <strong className="text-foreground">{profile.experience_level}</strong></span>
+            <span>{t("profile.level")}: <strong className="text-foreground">{profile.experience_level}</strong></span>
             {reviews.length > 0 && (
               <span className="flex items-center gap-1">
                 <Star className="h-4 w-4 fill-warning text-warning" />
@@ -71,10 +73,10 @@ export default function PublicProfilePage() {
       </Card>
 
       <Card className="shadow-card">
-        <CardHeader><CardTitle>الخدمات</CardTitle></CardHeader>
+        <CardHeader><CardTitle>{t("pp.services")}</CardTitle></CardHeader>
         <CardContent>
           {services.length === 0 ? (
-            <p className="text-sm text-muted-foreground">لا خدمات حالياً.</p>
+            <p className="text-sm text-muted-foreground">{t("pp.noServices")}</p>
           ) : (
             <div className="grid gap-3 sm:grid-cols-2">
               {services.map((s) => (
@@ -89,10 +91,10 @@ export default function PublicProfilePage() {
       </Card>
 
       <Card className="shadow-card">
-        <CardHeader><CardTitle>التقييمات</CardTitle></CardHeader>
+        <CardHeader><CardTitle>{t("pp.reviews")}</CardTitle></CardHeader>
         <CardContent>
           {reviews.length === 0 ? (
-            <p className="text-sm text-muted-foreground">لا تقييمات بعد.</p>
+            <p className="text-sm text-muted-foreground">{t("pp.noReviews")}</p>
           ) : (
             <div className="space-y-3">
               {reviews.map((r) => (

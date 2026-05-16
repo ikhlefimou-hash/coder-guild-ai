@@ -29,6 +29,7 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
 import { Loader2, Lock, Plus, Users as UsersIcon, Globe } from "lucide-react";
 import { z } from "zod";
+import { useI18n } from "@/lib/i18n";
 
 type Visibility = "public" | "private";
 interface Group {
@@ -40,21 +41,22 @@ interface Group {
   created_at: string;
 }
 
-const createSchema = z.object({
-  name: z.string().trim().min(3, "3 أحرف على الأقل").max(80),
-  description: z.string().trim().max(500).optional().or(z.literal("")),
-  visibility: z.enum(["public", "private"]),
-  allow_all_post: z.boolean().optional(),
-});
-
 export default function Groups() {
   const { user } = useAuth();
+  const { t, dir } = useI18n();
   const [groups, setGroups] = useState<Group[]>([]);
   const [myMemberships, setMyMemberships] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<"all" | "public" | "private" | "mine">("all");
   const [creating, setCreating] = useState(false);
   const [open, setOpen] = useState(false);
+
+  const createSchema = z.object({
+    name: z.string().trim().min(3, t("groups.shortName")).max(80),
+    description: z.string().trim().max(500).optional().or(z.literal("")),
+    visibility: z.enum(["public", "private"]),
+    allow_all_post: z.boolean().optional(),
+  });
 
   const load = async () => {
     setLoading(true);
@@ -101,7 +103,7 @@ export default function Groups() {
       toast.error(error.message);
       return;
     }
-    toast.success("تم إنشاء المجموعة");
+    toast.success(t("groups.created"));
     setOpen(false);
     load();
   };
@@ -114,56 +116,56 @@ export default function Groups() {
   });
 
   return (
-    <div className="container py-6" dir="rtl">
+    <div className="container py-6" dir={dir}>
       <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold">المجموعات</h1>
-          <p className="text-sm text-muted-foreground">انضم لمجموعات برمجية أو أنشئ مجموعتك.</p>
+          <h1 className="text-2xl font-bold">{t("groups.title")}</h1>
+          <p className="text-sm text-muted-foreground">{t("groups.sub")}</p>
         </div>
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger asChild>
             <Button className="bg-gradient-primary shadow-glow">
               <Plus className="ml-1 h-4 w-4" />
-              مجموعة جديدة
+              {t("groups.new")}
             </Button>
           </DialogTrigger>
-          <DialogContent dir="rtl">
+          <DialogContent dir={dir}>
             <DialogHeader>
-              <DialogTitle>إنشاء مجموعة</DialogTitle>
-              <DialogDescription>اختر اسماً ونوع الوصول.</DialogDescription>
+              <DialogTitle>{t("groups.create")}</DialogTitle>
+              <DialogDescription>{t("groups.createSub")}</DialogDescription>
             </DialogHeader>
             <form onSubmit={handleCreate} className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="g-name">الاسم</Label>
+                <Label htmlFor="g-name">{t("groups.name")}</Label>
                 <Input id="g-name" name="name" required minLength={3} maxLength={80} />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="g-desc">الوصف (اختياري)</Label>
+                <Label htmlFor="g-desc">{t("groups.desc")}</Label>
                 <Textarea id="g-desc" name="description" maxLength={500} rows={3} />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="g-vis">النوع</Label>
+                <Label htmlFor="g-vis">{t("groups.type")}</Label>
                 <Select name="visibility" defaultValue="public">
                   <SelectTrigger id="g-vis">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="public">عامة — أي أحد يقدر ينضم</SelectItem>
-                    <SelectItem value="private">خاصة — تحتاج موافقة</SelectItem>
+                    <SelectItem value="public">{t("groups.publicOpt")}</SelectItem>
+                    <SelectItem value="private">{t("groups.privateOpt")}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
               <div className="flex items-start gap-2 rounded-md border p-3">
                 <Checkbox id="g-allow" name="allow_all_post" />
                 <div className="space-y-1">
-                  <Label htmlFor="g-allow" className="cursor-pointer">السماح لكل الأعضاء بالنشر</Label>
-                  <p className="text-xs text-muted-foreground">إذا تم تفعيله، أي عضو يقدر يكتب في المجموعة. وإلا فقط المشرفون.</p>
+                  <Label htmlFor="g-allow" className="cursor-pointer">{t("groups.allowAllPost")}</Label>
+                  <p className="text-xs text-muted-foreground">{t("groups.allowAllPostHint")}</p>
                 </div>
               </div>
               <DialogFooter>
                 <Button type="submit" disabled={creating} className="bg-gradient-primary shadow-glow">
                   {creating && <Loader2 className="ml-2 h-4 w-4 animate-spin" />}
-                  إنشاء
+                  {t("common.create")}
                 </Button>
               </DialogFooter>
             </form>
@@ -173,10 +175,10 @@ export default function Groups() {
 
       <Tabs value={filter} onValueChange={(v) => setFilter(v as typeof filter)} className="mb-4">
         <TabsList>
-          <TabsTrigger value="all">الكل</TabsTrigger>
-          <TabsTrigger value="public">عامة</TabsTrigger>
-          <TabsTrigger value="private">خاصة</TabsTrigger>
-          <TabsTrigger value="mine">مجموعاتي</TabsTrigger>
+          <TabsTrigger value="all">{t("groups.tabAll")}</TabsTrigger>
+          <TabsTrigger value="public">{t("groups.tabPublic")}</TabsTrigger>
+          <TabsTrigger value="private">{t("groups.tabPrivate")}</TabsTrigger>
+          <TabsTrigger value="mine">{t("groups.tabMine")}</TabsTrigger>
         </TabsList>
       </Tabs>
 
@@ -186,7 +188,7 @@ export default function Groups() {
         </div>
       ) : visible.length === 0 ? (
         <Card className="border-dashed">
-          <CardContent className="py-10 text-center text-sm text-muted-foreground">لا توجد مجموعات هنا بعد.</CardContent>
+          <CardContent className="py-10 text-center text-sm text-muted-foreground">{t("groups.empty")}</CardContent>
         </Card>
       ) : (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -200,7 +202,7 @@ export default function Groups() {
                     </div>
                     <Badge variant={g.visibility === "public" ? "secondary" : "outline"} className="gap-1">
                       {g.visibility === "public" ? <Globe className="h-3 w-3" /> : <Lock className="h-3 w-3" />}
-                      {g.visibility === "public" ? "عامة" : "خاصة"}
+                      {g.visibility === "public" ? t("groups.public") : t("groups.private")}
                     </Badge>
                   </div>
                   <CardTitle className="text-lg">{g.name}</CardTitle>

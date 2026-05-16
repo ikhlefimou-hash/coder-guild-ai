@@ -7,6 +7,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Loader2, Plus, Search, UserCog } from "lucide-react";
+import { useI18n } from "@/lib/i18n";
 
 interface Programmer {
   id: string;
@@ -23,6 +24,7 @@ export default function Programmers() {
   const [list, setList] = useState<Programmer[]>([]);
   const [loading, setLoading] = useState(true);
   const [q, setQ] = useState("");
+  const { t, dir } = useI18n();
 
   useEffect(() => {
     (async () => {
@@ -50,31 +52,31 @@ export default function Programmers() {
   const initials = (n?: string | null, u?: string) => (n || u || "?").trim().charAt(0).toUpperCase();
 
   return (
-    <div className="container py-4" dir="rtl">
+    <div className="container py-4" dir={dir}>
       <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
         <div>
-          <h1 className="text-2xl font-bold">المبرمجون</h1>
-          <p className="text-sm text-muted-foreground">دليل المبرمجين والخدمات</p>
+          <h1 className="text-2xl font-bold">{t("prog.title")}</h1>
+          <p className="text-sm text-muted-foreground">{t("prog.sub")}</p>
         </div>
         <div className="flex gap-2">
           <Button asChild variant="outline">
-            <Link to="/profile"><UserCog className="ml-1 h-4 w-4" /> هويتي</Link>
+            <Link to="/profile"><UserCog className="ml-1 h-4 w-4" /> {t("prog.me")}</Link>
           </Button>
           <Button asChild className="bg-gradient-primary shadow-glow">
-            <Link to="/dashboard/projects/new"><Plus className="ml-1 h-4 w-4" /> أضف خدمتي</Link>
+            <Link to="/dashboard/projects/new"><Plus className="ml-1 h-4 w-4" /> {t("prog.addMine")}</Link>
           </Button>
         </div>
       </div>
 
       <div className="mb-3 flex items-center gap-2">
         <Search className="h-4 w-4 text-muted-foreground" />
-        <Input value={q} onChange={(e) => setQ(e.target.value)} placeholder="ابحث بالاسم أو المهارة…" />
+        <Input value={q} onChange={(e) => setQ(e.target.value)} placeholder={t("prog.searchPh")} />
       </div>
 
       {loading ? (
         <div className="flex justify-center py-16"><Loader2 className="h-6 w-6 animate-spin text-primary" /></div>
       ) : filtered.length === 0 ? (
-        <Card className="border-dashed"><CardContent className="py-10 text-center text-sm text-muted-foreground">لا نتائج.</CardContent></Card>
+        <Card className="border-dashed"><CardContent className="py-10 text-center text-sm text-muted-foreground">{t("prog.empty")}</CardContent></Card>
       ) : (
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {filtered.map((p) => (

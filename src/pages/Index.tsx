@@ -3,16 +3,18 @@ import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Code2, Bot, Users, BookOpen, ShoppingBag, Loader2 } from "lucide-react";
-
-const features = [
-  { icon: Bot, title: "مساعد ذكي", desc: "اطرح أي سؤال برمجي وتحصل على إجابة فورية." },
-  { icon: Users, title: "مجموعات", desc: "تعاون مع المبرمجين في مجموعات مفتوحة وخاصة." },
-  { icon: BookOpen, title: "دروس", desc: "مسارات تعليمية من البداية حتى الاحتراف." },
-  { icon: ShoppingBag, title: "سوق المشاريع", desc: "بِع واشترِ مشاريع برمجية جاهزة." },
-];
+import { useI18n } from "@/lib/i18n";
 
 export default function Index() {
   const { user, loading } = useAuth();
+  const { t, dir } = useI18n();
+
+  const features = [
+    { icon: Bot, title: t("index.feat.ai.title"), desc: t("index.feat.ai.desc") },
+    { icon: Users, title: t("index.feat.groups.title"), desc: t("index.feat.groups.desc") },
+    { icon: BookOpen, title: t("index.feat.lessons.title"), desc: t("index.feat.lessons.desc") },
+    { icon: ShoppingBag, title: t("index.feat.market.title"), desc: t("index.feat.market.desc") },
+  ];
 
   if (loading) {
     return (
@@ -25,7 +27,7 @@ export default function Index() {
   if (user) return <Navigate to="/dashboard" replace />;
 
   return (
-    <div className="min-h-screen bg-background" dir="rtl">
+    <div className="min-h-screen bg-background" dir={dir}>
       <header className="border-b border-border/50">
         <div className="container flex h-16 items-center justify-between">
           <div className="flex items-center gap-2">
@@ -35,7 +37,7 @@ export default function Index() {
             <span className="text-lg font-bold text-gradient">DevHub</span>
           </div>
           <Button asChild className="bg-gradient-primary shadow-glow">
-            <Link to="/auth">دخول</Link>
+            <Link to="/auth">{t("index.signIn")}</Link>
           </Button>
         </div>
       </header>
@@ -43,14 +45,12 @@ export default function Index() {
       <main className="container py-16">
         <section className="mx-auto max-w-3xl text-center">
           <h1 className="text-4xl font-bold sm:text-5xl">
-            <span className="text-gradient">منصة المبرمجين</span> للتعلم والتعاون
+            <span className="text-gradient">{t("index.heroTitle")}</span> {t("index.heroTitle2")}
           </h1>
-          <p className="mt-4 text-lg text-muted-foreground">
-            مجتمع مخصص للبرمجة فقط: دروس، مجموعات، مساعد ذكي، وسوق للمشاريع والخدمات.
-          </p>
+          <p className="mt-4 text-lg text-muted-foreground">{t("index.heroSub")}</p>
           <div className="mt-8 flex justify-center gap-3">
             <Button asChild size="lg" className="bg-gradient-primary shadow-glow">
-              <Link to="/auth">ابدأ مجاناً</Link>
+              <Link to="/auth">{t("index.startFree")}</Link>
             </Button>
           </div>
         </section>

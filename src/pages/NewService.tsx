@@ -10,18 +10,20 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
-
-const schema = z.object({
-  title: z.string().trim().min(3, "العنوان قصير جداً").max(150),
-  description: z.string().trim().min(10, "الوصف قصير جداً").max(5000),
-  price: z.number().min(0).max(1000000),
-  category: z.string().trim().max(50).optional(),
-});
+import { useI18n } from "@/lib/i18n";
 
 export default function NewService() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const [loading, setLoading] = useState(false);
+  const { t, dir } = useI18n();
+
+  const schema = z.object({
+    title: z.string().trim().min(3, t("ns.shortTitle")).max(150),
+    description: z.string().trim().min(10, t("ns.shortDesc")).max(5000),
+    price: z.number().min(0).max(1000000),
+    category: z.string().trim().max(50).optional(),
+  });
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -51,35 +53,35 @@ export default function NewService() {
       .single();
     setLoading(false);
     if (error) {
-      toast.error("فشل إنشاء الخدمة. تحقق من حسابك.");
+      toast.error(t("ns.fail"));
       return;
     }
-    toast.success("تم نشر الخدمة!");
+    toast.success(t("ns.ok"));
     navigate(`/dashboard/projects/${data.id}`);
   };
 
   return (
-    <div className="container max-w-2xl py-8">
+    <div className="container max-w-2xl py-8" dir={dir}>
       <Card className="shadow-card">
         <CardHeader>
-          <CardTitle>عرض خدمة جديدة</CardTitle>
+          <CardTitle>{t("ns.title")}</CardTitle>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="title">عنوان الخدمة</Label>
-              <Input id="title" name="title" required minLength={3} maxLength={150} placeholder="مثال: تطوير موقع React احترافي" />
+              <Label htmlFor="title">{t("ns.svcTitle")}</Label>
+              <Input id="title" name="title" required minLength={3} maxLength={150} placeholder={t("ns.svcTitlePh")} />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="category">التصنيف (اختياري)</Label>
+              <Label htmlFor="category">{t("ns.category")}</Label>
               <Input id="category" name="category" maxLength={50} placeholder="Web, Mobile, AI..." />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="price">السعر ($)</Label>
+              <Label htmlFor="price">{t("ns.price")}</Label>
               <Input id="price" name="price" type="number" required min={0} max={1000000} step="0.01" />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="description">الوصف</Label>
+              <Label htmlFor="description">{t("ns.desc")}</Label>
               <Textarea
                 id="description"
                 name="description"
@@ -87,12 +89,12 @@ export default function NewService() {
                 minLength={10}
                 maxLength={5000}
                 rows={6}
-                placeholder="اشرح ما تقدمه، المدة المتوقعة، والتقنيات المستخدمة..."
+                placeholder={t("ns.descPh")}
               />
             </div>
             <Button type="submit" disabled={loading} className="w-full bg-gradient-primary shadow-glow">
               {loading && <Loader2 className="ml-2 h-4 w-4 animate-spin" />}
-              نشر الخدمة
+              {t("ns.publishBtn")}
             </Button>
           </form>
         </CardContent>

@@ -8,7 +8,8 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { formatDistanceToNow } from "date-fns";
-import { ar } from "date-fns/locale";
+import { ar, fr, enUS } from "date-fns/locale";
+import { useI18n } from "@/lib/i18n";
 
 interface Notif {
   id: string;
@@ -22,10 +23,12 @@ interface Notif {
 export default function NotificationsBell() {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const { t, lang, dir } = useI18n();
   const [items, setItems] = useState<Notif[]>([]);
   const [open, setOpen] = useState(false);
 
   const unread = items.filter((i) => !i.is_read).length;
+  const locale = lang === "ar" ? ar : lang === "fr" ? fr : enUS;
 
   const fetchItems = async () => {
     if (!user) return;
@@ -75,7 +78,7 @@ export default function NotificationsBell() {
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
-        <Button variant="ghost" size="icon" aria-label="الإشعارات" className="relative">
+        <Button variant="ghost" size="icon" aria-label={t("common.notifications")} className="relative">
           <Bell className="h-5 w-5" />
           {unread > 0 && (
             <Badge
@@ -87,18 +90,18 @@ export default function NotificationsBell() {
           )}
         </Button>
       </PopoverTrigger>
-      <PopoverContent align="end" className="w-80 p-0" dir="rtl">
+      <PopoverContent align="end" className="w-80 p-0" dir={dir}>
         <div className="flex items-center justify-between border-b p-3">
-          <span className="text-sm font-semibold">الإشعارات</span>
+          <span className="text-sm font-semibold">{t("common.notifications")}</span>
           {unread > 0 && (
             <Button variant="ghost" size="sm" onClick={markAllRead} className="h-7 text-xs">
-              <Check className="ml-1 h-3 w-3" /> قراءة الكل
+              <Check className="ml-1 h-3 w-3" /> {t("common.markAllRead")}
             </Button>
           )}
         </div>
         <ScrollArea className="h-80">
           {items.length === 0 ? (
-            <div className="p-6 text-center text-sm text-muted-foreground">لا توجد إشعارات</div>
+            <div className="p-6 text-center text-sm text-muted-foreground">{t("common.noNotifications")}</div>
           ) : (
             <ul className="divide-y">
               {items.map((n) => (
@@ -113,7 +116,7 @@ export default function NotificationsBell() {
                     <p className="text-sm font-medium">{n.title}</p>
                     {n.body && <p className="mt-0.5 line-clamp-2 text-xs text-muted-foreground">{n.body}</p>}
                     <p className="mt-1 text-[10px] text-muted-foreground">
-                      {formatDistanceToNow(new Date(n.created_at), { addSuffix: true, locale: ar })}
+                      {formatDistanceToNow(new Date(n.created_at), { addSuffix: true, locale })}
                     </p>
                   </div>
                   <Button

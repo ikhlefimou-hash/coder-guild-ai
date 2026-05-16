@@ -13,6 +13,7 @@ import {
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Loader2, Plus, BookOpen, Trash2, PlayCircle } from "lucide-react";
 import { toast } from "sonner";
+import { useI18n } from "@/lib/i18n";
 
 interface Lesson {
   id: string; author_id: string; title: string; description: string;
@@ -22,6 +23,7 @@ interface Lesson {
 
 export default function Lessons() {
   const { user } = useAuth();
+  const { t, dir } = useI18n();
   const [list, setList] = useState<Lesson[]>([]);
   const [loading, setLoading] = useState(true);
   const [tab, setTab] = useState<"all" | "free" | "paid">("all");
@@ -48,7 +50,7 @@ export default function Lessons() {
   const create = async () => {
     if (!user) return;
     if (!form.title.trim() || !form.description.trim()) {
-      toast.error("العنوان والوصف مطلوبان");
+      toast.error(t("les.reqTitleDesc"));
       return;
     }
     setSaving(true);
@@ -64,7 +66,7 @@ export default function Lessons() {
     });
     setSaving(false);
     if (error) { toast.error(error.message); return; }
-    toast.success("تم نشر الدرس");
+    toast.success(t("les.published"));
     setOpen(false);
     setForm({ title: "", description: "", category: "", cover_url: "", video_url: "", price: "0", type: "free" });
     load();
@@ -73,45 +75,45 @@ export default function Lessons() {
   const remove = async (id: string) => {
     const { error } = await supabase.from("lessons").delete().eq("id", id);
     if (error) { toast.error(error.message); return; }
-    toast.success("تم الحذف");
+    toast.success(t("les.deleted"));
     load();
   };
 
   return (
-    <div className="container py-4" dir="rtl">
+    <div className="container py-4" dir={dir}>
       <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
         <div>
-          <h1 className="text-2xl font-bold">الدروس والكورسات</h1>
-          <p className="text-sm text-muted-foreground">كورسات مجانية ومدفوعة</p>
+          <h1 className="text-2xl font-bold">{t("les.title")}</h1>
+          <p className="text-sm text-muted-foreground">{t("les.sub")}</p>
         </div>
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger asChild>
-            <Button className="bg-gradient-primary shadow-glow"><Plus className="ml-1 h-4 w-4" /> أضف درس</Button>
+            <Button className="bg-gradient-primary shadow-glow"><Plus className="ml-1 h-4 w-4" /> {t("les.add")}</Button>
           </DialogTrigger>
-          <DialogContent dir="rtl" className="max-w-lg">
-            <DialogHeader><DialogTitle>درس جديد</DialogTitle></DialogHeader>
+          <DialogContent dir={dir} className="max-w-lg">
+            <DialogHeader><DialogTitle>{t("les.newTitle")}</DialogTitle></DialogHeader>
             <div className="space-y-2">
-              <Input placeholder="العنوان" value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} />
-              <Textarea placeholder="الوصف" value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} />
-              <Input placeholder="التصنيف (مثل: JavaScript)" value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })} />
-              <Input placeholder="رابط الصورة (اختياري)" value={form.cover_url} onChange={(e) => setForm({ ...form, cover_url: e.target.value })} />
-              <Input placeholder="رابط الفيديو (YouTube/Vimeo)" value={form.video_url} onChange={(e) => setForm({ ...form, video_url: e.target.value })} />
+              <Input placeholder={t("les.phTitle")} value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} />
+              <Textarea placeholder={t("les.phDesc")} value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} />
+              <Input placeholder={t("les.phCat")} value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })} />
+              <Input placeholder={t("les.phCover")} value={form.cover_url} onChange={(e) => setForm({ ...form, cover_url: e.target.value })} />
+              <Input placeholder={t("les.phVideo")} value={form.video_url} onChange={(e) => setForm({ ...form, video_url: e.target.value })} />
               <div className="flex gap-2">
                 <Select value={form.type} onValueChange={(v) => setForm({ ...form, type: v as "free" | "paid" })}>
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="free">مجاني</SelectItem>
-                    <SelectItem value="paid">مدفوع</SelectItem>
+                    <SelectItem value="free">{t("les.free")}</SelectItem>
+                    <SelectItem value="paid">{t("les.paid")}</SelectItem>
                   </SelectContent>
                 </Select>
                 {form.type === "paid" && (
-                  <Input type="number" placeholder="السعر" value={form.price} onChange={(e) => setForm({ ...form, price: e.target.value })} />
+                  <Input type="number" placeholder={t("les.price")} value={form.price} onChange={(e) => setForm({ ...form, price: e.target.value })} />
                 )}
               </div>
             </div>
             <DialogFooter>
               <Button onClick={create} disabled={saving} className="bg-gradient-primary shadow-glow">
-                {saving ? <Loader2 className="ml-1 h-4 w-4 animate-spin" /> : null} نشر
+                {saving ? <Loader2 className="ml-1 h-4 w-4 animate-spin" /> : null} {t("common.publish")}
               </Button>
             </DialogFooter>
           </DialogContent>
@@ -120,15 +122,15 @@ export default function Lessons() {
 
       <Tabs value={tab} onValueChange={(v) => setTab(v as any)}>
         <TabsList>
-          <TabsTrigger value="all">الكل</TabsTrigger>
-          <TabsTrigger value="free">مجانية</TabsTrigger>
-          <TabsTrigger value="paid">مدفوعة</TabsTrigger>
+          <TabsTrigger value="all">{t("les.tabAll")}</TabsTrigger>
+          <TabsTrigger value="free">{t("les.tabFree")}</TabsTrigger>
+          <TabsTrigger value="paid">{t("les.tabPaid")}</TabsTrigger>
         </TabsList>
         <TabsContent value={tab} className="pt-4">
           {loading ? (
             <div className="flex justify-center py-16"><Loader2 className="h-6 w-6 animate-spin text-primary" /></div>
           ) : filtered.length === 0 ? (
-            <Card className="border-dashed"><CardContent className="py-10 text-center text-sm text-muted-foreground">لا دروس بعد.</CardContent></Card>
+            <Card className="border-dashed"><CardContent className="py-10 text-center text-sm text-muted-foreground">{t("les.empty")}</CardContent></Card>
           ) : (
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
               {filtered.map((l) => (
@@ -147,18 +149,18 @@ export default function Lessons() {
                     <p className="line-clamp-2 text-xs text-muted-foreground">{l.description}</p>
                     <div className="flex flex-wrap items-center gap-1">
                       <Badge variant={l.type === "free" ? "secondary" : "default"}>
-                        {l.type === "free" ? "مجاني" : `${l.price} د.ج`}
+                        {l.type === "free" ? t("les.free") : `${l.price} ${t("les.currency")}`}
                       </Badge>
                       {l.category && <Badge variant="outline">{l.category}</Badge>}
                     </div>
                     <div className="flex justify-between gap-2">
                       {l.video_url && (
                         <Button asChild size="sm" variant="outline">
-                          <a href={l.video_url} target="_blank" rel="noreferrer"><PlayCircle className="ml-1 h-4 w-4" /> مشاهدة</a>
+                          <a href={l.video_url} target="_blank" rel="noreferrer"><PlayCircle className="ml-1 h-4 w-4" /> {t("les.watch")}</a>
                         </Button>
                       )}
                       {user?.id === l.author_id && (
-                        <Button size="icon" variant="ghost" onClick={() => remove(l.id)} aria-label="حذف">
+                        <Button size="icon" variant="ghost" onClick={() => remove(l.id)} aria-label={t("common.delete")}>
                           <Trash2 className="h-4 w-4" />
                         </Button>
                       )}
