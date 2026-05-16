@@ -99,8 +99,9 @@ interface GroupImage {
 
 export default function GroupDetail() {
   const { id } = useParams<{ id: string }>();
-  const { user } = useAuth();
+  const { user, signOut, isAdmin: isPlatformAdmin } = useAuth();
   const navigate = useNavigate();
+  const { t } = useI18n();
 
   const [loading, setLoading] = useState(true);
   const [group, setGroup] = useState<Group | null>(null);
