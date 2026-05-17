@@ -422,7 +422,7 @@ export default function GroupDetail() {
   const canSeeContent = isMember || group.visibility === "public";
 
   return (
-    <div className="container py-6" dir="rtl">
+    <div className={`container ${activeTab === "posts" ? "flex h-[calc(100dvh-3.5rem)] flex-col overflow-hidden py-3" : "py-6"}`} dir="rtl">
       <Button variant="ghost" size="sm" asChild className="mb-3">
         <Link to="/dashboard/groups">
           <ArrowRight className="ml-1 h-4 w-4" />
