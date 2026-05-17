@@ -422,7 +422,7 @@ export default function GroupDetail() {
   const canSeeContent = isMember || group.visibility === "public";
 
   return (
-    <div className="container py-6" dir="rtl">
+    <div className={`container ${activeTab === "posts" ? "flex h-[calc(100dvh-3.5rem)] flex-col overflow-hidden py-3" : "py-6"}`} dir="rtl">
       <Button variant="ghost" size="sm" asChild className="mb-3">
         <Link to="/dashboard/groups">
           <ArrowRight className="ml-1 h-4 w-4" />
@@ -508,7 +508,7 @@ export default function GroupDetail() {
           </CardContent>
         </Card>
       ) : (
-        <Tabs value={activeTab} onValueChange={setActiveTab}>
+        <Tabs value={activeTab} onValueChange={setActiveTab} className={activeTab === "posts" ? "flex min-h-0 flex-1 flex-col" : ""}>
           <TabsList>
             <TabsTrigger value="posts">المنشورات</TabsTrigger>
             <TabsTrigger value="images">الصور</TabsTrigger>
@@ -518,11 +518,11 @@ export default function GroupDetail() {
             {isAdmin && <TabsTrigger value="requests">الطلبات ({requests.length})</TabsTrigger>}
           </TabsList>
 
-          <TabsContent value="posts" className="mt-2">
+          <TabsContent value="posts" className="mt-2 flex min-h-0 flex-1 flex-col data-[state=inactive]:hidden">
             {/* Chat area (full width) */}
-            <div className="flex h-[calc(100dvh-4rem)] flex-col overflow-hidden rounded-xl border border-border/40">
+            <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-xl border border-border/40">
               {/* Messages stream */}
-              <div className="chat-bg flex flex-1 flex-col-reverse gap-2 overflow-y-auto p-3 md:p-4">
+              <div className="chat-bg flex min-h-0 flex-1 flex-col-reverse gap-2 overflow-y-auto p-3 md:p-4">
                 {posts.length === 0 ? (
                   <p className="m-auto text-center text-sm text-muted-foreground">لا رسائل بعد. كن أول من يكتب.</p>
                 ) : (
