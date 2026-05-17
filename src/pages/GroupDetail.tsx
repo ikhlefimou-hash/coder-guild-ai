@@ -520,9 +520,9 @@ export default function GroupDetail() {
 
           <TabsContent value="posts" className="mt-2">
             {/* Chat area (full width) */}
-            <div className="flex flex-col overflow-hidden rounded-xl border border-border/40">
+            <div className="flex h-[calc(100dvh-4rem)] flex-col overflow-hidden rounded-xl border border-border/40">
               {/* Messages stream */}
-              <div className="chat-bg flex h-[calc(100vh-20rem)] min-h-[420px] flex-col-reverse gap-2 overflow-y-auto p-3 md:p-4">
+              <div className="chat-bg flex flex-1 flex-col-reverse gap-2 overflow-y-auto p-3 md:p-4">
                 {posts.length === 0 ? (
                   <p className="m-auto text-center text-sm text-muted-foreground">لا رسائل بعد. كن أول من يكتب.</p>
                 ) : (
