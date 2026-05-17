@@ -42,6 +42,8 @@ import {
   Users,
   BookOpen,
   MessageSquare,
+  Paperclip,
+  Link2,
 } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
 import {
