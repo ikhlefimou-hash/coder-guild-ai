@@ -115,6 +115,7 @@ export default function GroupDetail() {
   const [images, setImages] = useState<GroupImage[]>([]);
   const [uploading, setUploading] = useState(false);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState<string>("posts");
 
   const isMember = myRole !== null;
   const isAdmin = myRole === "admin";
