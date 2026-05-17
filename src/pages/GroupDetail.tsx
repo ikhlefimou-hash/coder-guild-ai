@@ -42,6 +42,8 @@ import {
   Users,
   BookOpen,
   MessageSquare,
+  Paperclip,
+  Link2,
 } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
 import {
@@ -115,6 +117,7 @@ export default function GroupDetail() {
   const [images, setImages] = useState<GroupImage[]>([]);
   const [uploading, setUploading] = useState(false);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState<string>("posts");
 
   const isMember = myRole !== null;
   const isAdmin = myRole === "admin";
@@ -505,155 +508,153 @@ export default function GroupDetail() {
           </CardContent>
         </Card>
       ) : (
-        <Tabs defaultValue="posts">
+        <Tabs value={activeTab} onValueChange={setActiveTab}>
           <TabsList>
             <TabsTrigger value="posts">المنشورات</TabsTrigger>
             <TabsTrigger value="images">الصور</TabsTrigger>
+            <TabsTrigger value="files">الملفات</TabsTrigger>
+            <TabsTrigger value="links">الروابط</TabsTrigger>
             <TabsTrigger value="members">الأعضاء</TabsTrigger>
             {isAdmin && <TabsTrigger value="requests">الطلبات ({requests.length})</TabsTrigger>}
           </TabsList>
 
           <TabsContent value="posts" className="mt-2">
-            <div className="flex flex-col gap-3 lg:flex-row-reverse">
-              {/* Glass sidebar: files & images */}
-              <aside className="glass-panel sticky top-16 h-fit w-full shrink-0 rounded-xl p-3 lg:w-72">
-                <div className="mb-3 flex items-center gap-2 text-sm font-semibold">
-                  <Images className="h-4 w-4 text-primary" />
-                  <span>الملفات والصور</span>
-                  <span className="ms-auto text-xs text-muted-foreground">{images.length}</span>
-                </div>
-                {images.length === 0 ? (
-                  <p className="py-6 text-center text-xs text-muted-foreground">لا توجد ملفات بعد</p>
+            {/* Chat area (full width) */}
+            <div className="flex flex-col overflow-hidden rounded-xl border border-border/40">
+              {/* Messages stream */}
+              <div className="chat-bg flex h-[calc(100vh-20rem)] min-h-[420px] flex-col-reverse gap-2 overflow-y-auto p-3 md:p-4">
+                {posts.length === 0 ? (
+                  <p className="m-auto text-center text-sm text-muted-foreground">لا رسائل بعد. كن أول من يكتب.</p>
                 ) : (
-                  <div className="grid max-h-[40vh] grid-cols-3 gap-1.5 overflow-y-auto pr-1 lg:max-h-[60vh]">
-                    {images.slice(0, 24).map((img) => (
-                      <button
-                        key={img.id}
-                        type="button"
-                        onClick={() => setPreviewUrl(img.public_url)}
-                        className="group relative aspect-square overflow-hidden rounded-md border border-border/40 bg-muted/40"
-                        aria-label="عرض الصورة"
-                      >
-                        <img
-                          src={img.public_url}
-                          alt={img.caption ?? "صورة المجموعة"}
-                          loading="lazy"
-                          className="h-full w-full object-cover transition group-hover:scale-110"
-                        />
-                      </button>
-                    ))}
-                  </div>
-                )}
-                {isMember && (
-                  <label className="mt-3 block cursor-pointer">
-                    <input
-                      type="file"
-                      accept="image/*"
-                      className="hidden"
-                      onChange={handleUploadImage}
-                      disabled={uploading}
-                    />
-                    <span className="flex w-full items-center justify-center gap-2 rounded-md bg-gradient-primary px-3 py-2 text-xs text-primary-foreground shadow-glow">
-                      {uploading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <ImagePlus className="h-3.5 w-3.5" />}
-                      رفع صورة
-                    </span>
-                  </label>
-                )}
-              </aside>
-
-              {/* Chat area */}
-              <div className="flex flex-1 flex-col overflow-hidden rounded-xl border border-border/40">
-                {/* Messages stream */}
-                <div className="chat-bg flex h-[calc(100vh-18rem)] min-h-[420px] flex-col-reverse gap-2 overflow-y-auto p-3 md:p-4">
-                  {posts.length === 0 ? (
-                    <p className="m-auto text-center text-sm text-muted-foreground">لا رسائل بعد. كن أول من يكتب.</p>
-                  ) : (
-                    posts.map((p) => {
-                      const mine = p.author_id === user?.id;
-                      const canDelete = mine || isAdmin;
-                      return (
-                        <div key={p.id} className={`flex w-full ${mine ? "justify-start" : "justify-end"}`}>
-                          <div className={`flex max-w-[80%] gap-2 ${mine ? "flex-row" : "flex-row-reverse"}`}>
-                            <Link to={`/users/${p.author_id}`} className="shrink-0">
-                              <Avatar className="h-8 w-8">
-                                <AvatarImage src={p.profile?.avatar_url ?? undefined} />
-                                <AvatarFallback>{initials(p.profile?.full_name, p.profile?.username)}</AvatarFallback>
-                              </Avatar>
-                            </Link>
-                            <div
-                              className={`group relative rounded-2xl px-3 py-2 text-sm shadow-card ${
-                                mine
-                                  ? "rounded-bl-sm bg-gradient-primary text-primary-foreground"
-                                  : "rounded-br-sm bg-card text-card-foreground border border-border/50"
-                              }`}
-                            >
-                              {!mine && (
-                                <p className="mb-0.5 text-[11px] font-medium opacity-80">
-                                  {p.profile?.full_name ?? p.profile?.username ?? "مستخدم"}
-                                </p>
-                              )}
-                              <p className="whitespace-pre-wrap break-words">{p.content}</p>
-                              <p className={`mt-1 text-[10px] ${mine ? "text-primary-foreground/70" : "text-muted-foreground"}`}>
-                                {new Date(p.created_at).toLocaleTimeString("ar", { hour: "2-digit", minute: "2-digit" })}
+                  posts.map((p) => {
+                    const mine = p.author_id === user?.id;
+                    const canDelete = mine || isAdmin;
+                    return (
+                      <div key={p.id} className={`flex w-full ${mine ? "justify-start" : "justify-end"}`}>
+                        <div className={`flex max-w-[80%] gap-2 ${mine ? "flex-row" : "flex-row-reverse"}`}>
+                          <Link to={`/users/${p.author_id}`} className="shrink-0">
+                            <Avatar className="h-8 w-8">
+                              <AvatarImage src={p.profile?.avatar_url ?? undefined} />
+                              <AvatarFallback>{initials(p.profile?.full_name, p.profile?.username)}</AvatarFallback>
+                            </Avatar>
+                          </Link>
+                          <div
+                            className={`group relative rounded-2xl px-3 py-2 text-sm shadow-card ${
+                              mine
+                                ? "rounded-bl-sm bg-gradient-primary text-primary-foreground"
+                                : "rounded-br-sm bg-card text-card-foreground border border-border/50"
+                            }`}
+                          >
+                            {!mine && (
+                              <p className="mb-0.5 text-[11px] font-medium opacity-80">
+                                {p.profile?.full_name ?? p.profile?.username ?? "مستخدم"}
                               </p>
-                              {canDelete && (
-                                <button
-                                  type="button"
-                                  onClick={() => handleDeletePost(p.id)}
-                                  aria-label="حذف"
-                                  className="absolute -top-2 left-1 hidden rounded-full bg-background/90 p-1 text-destructive shadow group-hover:block"
-                                >
-                                  <Trash2 className="h-3 w-3" />
-                                </button>
-                              )}
-                            </div>
+                            )}
+                            <p className="whitespace-pre-wrap break-words">{p.content}</p>
+                            <p className={`mt-1 text-[10px] ${mine ? "text-primary-foreground/70" : "text-muted-foreground"}`}>
+                              {new Date(p.created_at).toLocaleTimeString("ar", { hour: "2-digit", minute: "2-digit" })}
+                            </p>
+                            {canDelete && (
+                              <button
+                                type="button"
+                                onClick={() => handleDeletePost(p.id)}
+                                aria-label="حذف"
+                                className="absolute -top-2 left-1 hidden rounded-full bg-background/90 p-1 text-destructive shadow group-hover:block"
+                              >
+                                <Trash2 className="h-3 w-3" />
+                              </button>
+                            )}
                           </div>
                         </div>
-                      );
-                    })
-                  )}
-                </div>
-
-                {/* Composer */}
-                {canPost ? (
-                  <form
-                    onSubmit={(e) => {
-                      e.preventDefault();
-                      handlePost();
-                    }}
-                    className="flex items-end gap-2 border-t border-border/40 bg-card/60 p-2 backdrop-blur"
-                  >
-                    <Button
-                      type="submit"
-                      size="icon"
-                      disabled={posting || !draft.trim()}
-                      className="h-10 w-10 shrink-0 bg-gradient-primary shadow-glow"
-                      aria-label="إرسال"
-                    >
-                      {posting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
-                    </Button>
-                    <Textarea
-                      value={draft}
-                      onChange={(e) => setDraft(e.target.value)}
-                      onKeyDown={(e) => {
-                        if (e.key === "Enter" && !e.shiftKey) {
-                          e.preventDefault();
-                          handlePost();
-                        }
-                      }}
-                      placeholder="اكتب رسالة..."
-                      maxLength={4000}
-                      rows={1}
-                      className="max-h-32 min-h-[40px] flex-1 resize-none rounded-2xl bg-background/60 py-2"
-                    />
-                  </form>
-                ) : (
-                  <div className="border-t border-border/40 bg-card/60 p-3 text-center text-xs text-muted-foreground">
-                    {isMember ? "النشر متاح للمشرفين فقط في هذه المجموعة" : "انضم للمجموعة لإرسال الرسائل"}
-                  </div>
+                      </div>
+                    );
+                  })
                 )}
               </div>
+
+              {/* Composer */}
+              {canPost ? (
+                <form
+                  onSubmit={(e) => {
+                    e.preventDefault();
+                    handlePost();
+                  }}
+                  className="flex items-end gap-2 border-t border-border/40 bg-card/60 p-2 backdrop-blur"
+                >
+                  <Button
+                    type="submit"
+                    size="icon"
+                    disabled={posting || !draft.trim()}
+                    className="h-10 w-10 shrink-0 bg-gradient-primary shadow-glow"
+                    aria-label="إرسال"
+                  >
+                    {posting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
+                  </Button>
+                  <Textarea
+                    value={draft}
+                    onChange={(e) => setDraft(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" && !e.shiftKey) {
+                        e.preventDefault();
+                        handlePost();
+                      }
+                    }}
+                    placeholder="اكتب رسالة..."
+                    maxLength={4000}
+                    rows={1}
+                    className="max-h-32 min-h-[40px] flex-1 resize-none rounded-2xl bg-background/60 py-2"
+                  />
+                </form>
+              ) : (
+                <div className="border-t border-border/40 bg-card/60 p-3 text-center text-xs text-muted-foreground">
+                  {isMember ? "النشر متاح للمشرفين فقط في هذه المجموعة" : "انضم للمجموعة لإرسال الرسائل"}
+                </div>
+              )}
+
+              {/* Bottom inline nav: images / files / links */}
+              <div className="grid grid-cols-3 gap-1 border-t border-border/40 bg-card/40 p-1 backdrop-blur">
+                <button
+                  type="button"
+                  onClick={() => setActiveTab("images")}
+                  className="flex flex-col items-center gap-0.5 rounded-md py-1.5 text-[11px] text-muted-foreground transition hover:bg-accent hover:text-foreground"
+                >
+                  <Images className="h-4 w-4" />
+                  <span>الصور</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setActiveTab("files")}
+                  className="flex flex-col items-center gap-0.5 rounded-md py-1.5 text-[11px] text-muted-foreground transition hover:bg-accent hover:text-foreground"
+                >
+                  <Paperclip className="h-4 w-4" />
+                  <span>الملفات</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setActiveTab("links")}
+                  className="flex flex-col items-center gap-0.5 rounded-md py-1.5 text-[11px] text-muted-foreground transition hover:bg-accent hover:text-foreground"
+                >
+                  <Link2 className="h-4 w-4" />
+                  <span>الروابط</span>
+                </button>
+              </div>
             </div>
+          </TabsContent>
+
+          <TabsContent value="files" className="pt-4">
+            <Card className="border-dashed">
+              <CardContent className="py-10 text-center text-sm text-muted-foreground">
+                لا توجد ملفات بعد.
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="links" className="pt-4">
+            <Card className="border-dashed">
+              <CardContent className="py-10 text-center text-sm text-muted-foreground">
+                لا توجد روابط بعد.
+              </CardContent>
+            </Card>
           </TabsContent>
 
           <TabsContent value="images" className="space-y-4 pt-4">
