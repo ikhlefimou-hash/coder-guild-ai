@@ -509,7 +509,7 @@ export default function GroupDetail() {
         </Card>
       ) : (
         <Tabs value={activeTab} onValueChange={setActiveTab} className={activeTab === "posts" ? "flex min-h-0 flex-1 flex-col" : ""}>
-          <TabsList>
+          <TabsList className="w-full justify-start overflow-x-auto">
             <TabsTrigger value="posts">المنشورات</TabsTrigger>
             <TabsTrigger value="images">الصور</TabsTrigger>
             <TabsTrigger value="files">الملفات</TabsTrigger>
