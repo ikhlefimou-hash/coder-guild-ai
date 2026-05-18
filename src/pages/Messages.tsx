@@ -297,7 +297,7 @@ export default function Messages() {
         </ScrollArea>
       </aside>
 
-      <section className="flex flex-1 flex-col">
+      <section className={`${peer ? "flex" : "hidden md:flex"} flex-1 flex-col`}>
         {!peer ? (
           <div className="flex flex-1 items-center justify-center text-muted-foreground">
             {t("msg.pickConv")}
@@ -305,13 +305,22 @@ export default function Messages() {
         ) : (
           <>
             <header className="flex items-center gap-2 border-b p-3">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="md:hidden"
+                onClick={() => setParams({})}
+                aria-label="back"
+              >
+                <ArrowRight className={`h-5 w-5 ${dir === "rtl" ? "" : "rotate-180"}`} />
+              </Button>
               <Avatar className="h-9 w-9">
                 <AvatarImage src={peer.avatar_url ?? undefined} />
                 <AvatarFallback>{initials(peer)}</AvatarFallback>
               </Avatar>
-              <div>
-                <p className="text-sm font-semibold">{peer.full_name || peer.username}</p>
-                <p className="text-xs text-muted-foreground">@{peer.username}</p>
+              <div className="min-w-0">
+                <p className="truncate text-sm font-semibold">{peer.full_name || peer.username}</p>
+                <p className="truncate text-xs text-muted-foreground">@{peer.username}</p>
               </div>
             </header>
             <div ref={scrollRef} className="flex-1 space-y-2 overflow-y-auto bg-background/50 p-4">
