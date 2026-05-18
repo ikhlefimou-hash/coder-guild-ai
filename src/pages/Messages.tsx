@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Send, Search } from "lucide-react";
+import { Send, Search, ArrowRight } from "lucide-react";
 import { toast } from "sonner";
 import { useI18n } from "@/lib/i18n";
 
@@ -210,11 +210,13 @@ export default function Messages() {
   }, [search, user?.id]);
 
   const initials = (p: Profile) => (p.full_name || p.username || "?").slice(0, 2);
-  const sideClass = dir === "rtl" ? "border-l" : "border-r";
+  const sideClass = dir === "rtl" ? "md:border-l" : "md:border-r";
 
   return (
-    <div className="flex h-[calc(100vh-3.5rem)]" dir={dir}>
-      <aside className={`flex w-72 shrink-0 flex-col ${sideClass} bg-card`}>
+    <div className="flex h-[calc(100dvh-3.5rem)]" dir={dir}>
+      <aside
+        className={`${peer ? "hidden md:flex" : "flex"} w-full shrink-0 flex-col md:w-72 ${sideClass} bg-card`}
+      >
         <div className="border-b p-3">
           <div className="relative">
             <Search className={`absolute ${dir === "rtl" ? "right-2" : "left-2"} top-2.5 h-4 w-4 text-muted-foreground`} />
@@ -295,7 +297,7 @@ export default function Messages() {
         </ScrollArea>
       </aside>
 
-      <section className="flex flex-1 flex-col">
+      <section className={`${peer ? "flex" : "hidden md:flex"} flex-1 flex-col`}>
         {!peer ? (
           <div className="flex flex-1 items-center justify-center text-muted-foreground">
             {t("msg.pickConv")}
@@ -303,13 +305,22 @@ export default function Messages() {
         ) : (
           <>
             <header className="flex items-center gap-2 border-b p-3">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="md:hidden"
+                onClick={() => setParams({})}
+                aria-label="back"
+              >
+                <ArrowRight className={`h-5 w-5 ${dir === "rtl" ? "" : "rotate-180"}`} />
+              </Button>
               <Avatar className="h-9 w-9">
                 <AvatarImage src={peer.avatar_url ?? undefined} />
                 <AvatarFallback>{initials(peer)}</AvatarFallback>
               </Avatar>
-              <div>
-                <p className="text-sm font-semibold">{peer.full_name || peer.username}</p>
-                <p className="text-xs text-muted-foreground">@{peer.username}</p>
+              <div className="min-w-0">
+                <p className="truncate text-sm font-semibold">{peer.full_name || peer.username}</p>
+                <p className="truncate text-xs text-muted-foreground">@{peer.username}</p>
               </div>
             </header>
             <div ref={scrollRef} className="flex-1 space-y-2 overflow-y-auto bg-background/50 p-4">

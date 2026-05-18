@@ -139,15 +139,15 @@ export default function Profile() {
   }
 
   return (
-    <div className="container max-w-5xl space-y-6 py-8" dir={dir}>
+    <div className="container max-w-5xl space-y-6 px-3 py-6 sm:px-4 sm:py-8" dir={dir}>
       <Card className="shadow-card">
         <CardHeader>
-          <div className="flex items-start justify-between">
-            <div>
-              <CardTitle className="text-2xl">@{profile?.username}</CardTitle>
+          <div className="flex flex-wrap items-start justify-between gap-3">
+            <div className="min-w-0">
+              <CardTitle className="break-words text-xl sm:text-2xl">@{profile?.username}</CardTitle>
               {profile?.full_name && <p className="mt-1 text-muted-foreground">{profile.full_name}</p>}
             </div>
-            <Button variant="outline" onClick={() => setEditOpen(true)}>{t("profile.editBtn")}</Button>
+            <Button variant="outline" size="sm" onClick={() => setEditOpen(true)}>{t("profile.editBtn")}</Button>
           </div>
         </CardHeader>
         <CardContent className="space-y-3">

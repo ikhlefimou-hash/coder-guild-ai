@@ -126,7 +126,7 @@ export default function AiChat() {
   return (
     <div className="container py-4" dir={dir}>
       <div className="grid grid-cols-1 gap-3 md:grid-cols-[260px_1fr]">
-        <Card className="md:h-[calc(100vh-8rem)]">
+        <Card className="max-h-[35vh] md:max-h-none md:h-[calc(100vh-8rem)]">
           <CardContent className="flex h-full flex-col gap-2 p-3">
             <Button onClick={newChat} className="bg-gradient-primary shadow-glow">
               <Plus className="ml-1 h-4 w-4" /> {t("ai.newChat")}
@@ -147,7 +147,7 @@ export default function AiChat() {
           </CardContent>
         </Card>
 
-        <Card className="flex flex-col md:h-[calc(100vh-8rem)]">
+        <Card className="flex h-[60vh] flex-col md:h-[calc(100vh-8rem)]">
           <CardContent className="flex h-full flex-col gap-2 p-3">
             <ScrollArea className="flex-1" ref={scrollRef as any}>
               <div ref={scrollRef} className="space-y-3 p-2">
