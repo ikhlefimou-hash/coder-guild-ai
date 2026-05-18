@@ -210,11 +210,13 @@ export default function Messages() {
   }, [search, user?.id]);
 
   const initials = (p: Profile) => (p.full_name || p.username || "?").slice(0, 2);
-  const sideClass = dir === "rtl" ? "border-l" : "border-r";
+  const sideClass = dir === "rtl" ? "md:border-l" : "md:border-r";
 
   return (
-    <div className="flex h-[calc(100vh-3.5rem)]" dir={dir}>
-      <aside className={`flex w-72 shrink-0 flex-col ${sideClass} bg-card`}>
+    <div className="flex h-[calc(100dvh-3.5rem)]" dir={dir}>
+      <aside
+        className={`${peer ? "hidden md:flex" : "flex"} w-full shrink-0 flex-col md:w-72 ${sideClass} bg-card`}
+      >
         <div className="border-b p-3">
           <div className="relative">
             <Search className={`absolute ${dir === "rtl" ? "right-2" : "left-2"} top-2.5 h-4 w-4 text-muted-foreground`} />
