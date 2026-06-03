@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Bot, Users, BookOpen, ShoppingBag, Code2, MessageSquare, Settings, Lightbulb } from "lucide-react";
+import { Bot, Users, BookOpen, ShoppingBag, GraduationCap, MessageSquare, Settings, Lightbulb } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useI18n } from "@/lib/i18n";
 
@@ -13,7 +13,7 @@ export default function Dashboard() {
     { title: t("nav.lessons"), desc: t("dashboard.mod.lessons.desc"), url: "/dashboard/lessons", icon: BookOpen },
     { title: t("nav.ideas"), desc: t("dashboard.mod.ideas.desc"), url: "/dashboard/ideas", icon: Lightbulb },
     { title: t("nav.projects"), desc: t("dashboard.mod.projects.desc"), url: "/dashboard/projects", icon: ShoppingBag },
-    { title: t("nav.programmers"), desc: t("dashboard.mod.programmers.desc"), url: "/dashboard/programmers", icon: Code2 },
+    { title: t("nav.teachers"), desc: t("teachers.sub"), url: "/dashboard/teachers", icon: GraduationCap },
     { title: t("nav.messages"), desc: t("dashboard.mod.messages.desc"), url: "/dashboard/messages", icon: MessageSquare },
     { title: t("nav.settings"), desc: t("dashboard.mod.settings.desc"), url: "/dashboard/settings", icon: Settings },
   ];

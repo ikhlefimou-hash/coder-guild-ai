@@ -21,7 +21,7 @@ import GroupDetail from "./pages/GroupDetail.tsx";
 import Profile from "./pages/Profile.tsx";
 import PublicProfile from "./pages/PublicProfile.tsx";
 import AiChat from "./pages/AiChat.tsx";
-import Programmers from "./pages/Programmers.tsx";
+import Teachers from "./pages/Teachers.tsx";
 import Lessons from "./pages/Lessons.tsx";
 import Ideas from "./pages/Ideas.tsx";
 import Messages from "./pages/Messages.tsx";
@@ -62,7 +62,8 @@ const App = () => (
               <Route path="projects" element={<Services />} />
               <Route path="projects/new" element={<NewService />} />
               <Route path="projects/:id" element={<ServiceDetail />} />
-              <Route path="programmers" element={<Programmers />} />
+              <Route path="teachers" element={<Teachers />} />
+              <Route path="programmers" element={<Navigate to="/dashboard/teachers" replace />} />
               <Route path="messages" element={<Messages />} />
               <Route
                 path="settings"
