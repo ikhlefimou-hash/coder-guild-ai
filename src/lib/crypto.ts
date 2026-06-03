@@ -12,11 +12,11 @@ function b64encode(buf: ArrayBuffer): string {
   for (let i = 0; i < bytes.length; i++) s += String.fromCharCode(bytes[i]);
   return btoa(s);
 }
-function b64decode(s: string): Uint8Array {
+function b64decode(s: string): ArrayBuffer {
   const bin = atob(s);
   const arr = new Uint8Array(bin.length);
   for (let i = 0; i < bin.length; i++) arr[i] = bin.charCodeAt(i);
-  return arr;
+  return arr.buffer;
 }
 
 async function generateKeyPair(): Promise<CryptoKeyPair> {
