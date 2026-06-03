@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Loader2, Star } from "lucide-react";
+import VerifiedBadge from "@/components/VerifiedBadge";
 import { useI18n } from "@/lib/i18n";
 
 interface PublicProfile {
@@ -14,6 +15,7 @@ interface PublicProfile {
   skills: string[] | null;
   experience_level: string | null;
   trust_score: number;
+  is_verified: boolean;
 }
 interface SvcRow { id: string; title: string; price: number; }
 interface RevRow { id: string; rating: number; comment: string | null; created_at: string; }
@@ -31,7 +33,7 @@ export default function PublicProfilePage() {
     (async () => {
       setLoading(true);
       const [{ data: p }, { data: s }, { data: r }] = await Promise.all([
-        supabase.from("profiles").select("id, username, full_name, bio, skills, experience_level, trust_score").eq("id", id).maybeSingle(),
+        supabase.from("profiles").select("id, username, full_name, bio, skills, experience_level, trust_score, is_verified").eq("id", id).maybeSingle(),
         supabase.from("services").select("id, title, price").eq("user_id", id).eq("is_active", true),
         supabase.from("reviews").select("id, rating, comment, created_at").eq("reviewee_id", id).order("created_at", { ascending: false }),
       ]);
@@ -52,7 +54,10 @@ export default function PublicProfilePage() {
     <div className="container max-w-4xl space-y-6 py-8" dir={dir}>
       <Card className="shadow-card">
         <CardHeader>
-          <CardTitle className="text-2xl">@{profile.username}</CardTitle>
+          <CardTitle className="flex flex-wrap items-center gap-2 text-2xl">
+            @{profile.username}
+            {profile.is_verified && <VerifiedBadge />}
+          </CardTitle>
           {profile.full_name && <p className="text-muted-foreground">{profile.full_name}</p>}
         </CardHeader>
         <CardContent className="space-y-3">

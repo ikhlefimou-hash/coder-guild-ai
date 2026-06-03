@@ -15,6 +15,9 @@ import { CheckCircle2, Clock, Loader2, Star, XCircle } from "lucide-react";
 import { z } from "zod";
 import { useI18n } from "@/lib/i18n";
 
+import VerificationDialog from "@/components/VerificationDialog";
+import VerifiedBadge from "@/components/VerifiedBadge";
+
 interface Profile {
   username: string;
   full_name: string | null;
@@ -22,6 +25,10 @@ interface Profile {
   skills: string[] | null;
   experience_level: string | null;
   trust_score: number;
+  is_verified: boolean;
+  verification_status: string;
+  verification_score: number | null;
+  verification_notes: string | null;
 }
 interface MyService { id: string; title: string; price: number; is_active: boolean; }
 interface Request {
@@ -61,7 +68,7 @@ export default function Profile() {
     if (!user) return;
     setLoading(true);
     const [{ data: p }, { data: s }, { data: inReq }, { data: outReq }] = await Promise.all([
-      supabase.from("profiles").select("username, full_name, bio, skills, experience_level, trust_score").eq("id", user.id).maybeSingle(),
+      supabase.from("profiles").select("username, full_name, bio, skills, experience_level, trust_score, is_verified, verification_status, verification_score, verification_notes").eq("id", user.id).maybeSingle(),
       supabase.from("services").select("id, title, price, is_active").eq("user_id", user.id).order("created_at", { ascending: false }),
       supabase.from("service_requests").select("id, service_id, buyer_id, seller_id, message, status, created_at, services(title)").eq("seller_id", user.id).order("created_at", { ascending: false }),
       supabase.from("service_requests").select("id, service_id, buyer_id, seller_id, message, status, created_at, services(title)").eq("buyer_id", user.id).order("created_at", { ascending: false }),
@@ -144,10 +151,16 @@ export default function Profile() {
         <CardHeader>
           <div className="flex flex-wrap items-start justify-between gap-3">
             <div className="min-w-0">
-              <CardTitle className="break-words text-xl sm:text-2xl">@{profile?.username}</CardTitle>
+              <CardTitle className="flex flex-wrap items-center gap-2 break-words text-xl sm:text-2xl">
+                @{profile?.username}
+                {profile?.is_verified && <VerifiedBadge />}
+              </CardTitle>
               {profile?.full_name && <p className="mt-1 text-muted-foreground">{profile.full_name}</p>}
             </div>
-            <Button variant="outline" size="sm" onClick={() => setEditOpen(true)}>{t("profile.editBtn")}</Button>
+            <div className="flex flex-wrap gap-2">
+              <Button variant="outline" size="sm" onClick={() => setEditOpen(true)}>{t("profile.editBtn")}</Button>
+              <VerificationDialog defaultBio={profile?.bio ?? ""} defaultSkills={profile?.skills ?? []} onDone={load} />
+            </div>
           </div>
         </CardHeader>
         <CardContent className="space-y-3">
@@ -161,7 +174,18 @@ export default function Profile() {
             <span>{t("profile.level")}: <strong className="text-foreground">{profile?.experience_level}</strong></span>
             <span>•</span>
             <span>{t("profile.trust")}: <strong className="text-success">{profile?.trust_score}</strong></span>
+            <span>•</span>
+            <span>
+              {t("verify.statusLabel")}:{" "}
+              <strong className="text-foreground">{t(`verify.status.${profile?.verification_status ?? "none"}`)}</strong>
+              {typeof profile?.verification_score === "number" && (
+                <span className="text-muted-foreground"> ({profile.verification_score}/100)</span>
+              )}
+            </span>
           </div>
+          {profile?.verification_notes && (
+            <p className="text-xs text-muted-foreground">{profile.verification_notes}</p>
+          )}
         </CardContent>
       </Card>
 
