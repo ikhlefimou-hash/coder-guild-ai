@@ -75,25 +75,46 @@ export type Database = {
       }
       direct_messages: {
         Row: {
-          content: string
+          attachment_name: string | null
+          attachment_type: string | null
+          attachment_url: string | null
+          content: string | null
           created_at: string
+          encrypted_content: string | null
           id: string
+          iv: string | null
+          key_for_recipient: string | null
+          key_for_sender: string | null
           read_at: string | null
           recipient_id: string
           sender_id: string
         }
         Insert: {
-          content: string
+          attachment_name?: string | null
+          attachment_type?: string | null
+          attachment_url?: string | null
+          content?: string | null
           created_at?: string
+          encrypted_content?: string | null
           id?: string
+          iv?: string | null
+          key_for_recipient?: string | null
+          key_for_sender?: string | null
           read_at?: string | null
           recipient_id: string
           sender_id: string
         }
         Update: {
-          content?: string
+          attachment_name?: string | null
+          attachment_type?: string | null
+          attachment_url?: string | null
+          content?: string | null
           created_at?: string
+          encrypted_content?: string | null
           id?: string
+          iv?: string | null
+          key_for_recipient?: string | null
+          key_for_sender?: string | null
           read_at?: string | null
           recipient_id?: string
           sender_id?: string
@@ -397,11 +418,19 @@ export type Database = {
           full_name: string | null
           id: string
           is_suspended: boolean
+          is_teacher: boolean
+          is_verified: boolean
           last_name: string | null
+          public_key: string | null
           skills: string[] | null
+          specialty: string | null
           trust_score: number
           updated_at: string
           username: string
+          verification_notes: string | null
+          verification_score: number | null
+          verification_status: string
+          verification_submitted_at: string | null
         }
         Insert: {
           avatar_url?: string | null
@@ -414,11 +443,19 @@ export type Database = {
           full_name?: string | null
           id: string
           is_suspended?: boolean
+          is_teacher?: boolean
+          is_verified?: boolean
           last_name?: string | null
+          public_key?: string | null
           skills?: string[] | null
+          specialty?: string | null
           trust_score?: number
           updated_at?: string
           username: string
+          verification_notes?: string | null
+          verification_score?: number | null
+          verification_status?: string
+          verification_submitted_at?: string | null
         }
         Update: {
           avatar_url?: string | null
@@ -431,11 +468,19 @@ export type Database = {
           full_name?: string | null
           id?: string
           is_suspended?: boolean
+          is_teacher?: boolean
+          is_verified?: boolean
           last_name?: string | null
+          public_key?: string | null
           skills?: string[] | null
+          specialty?: string | null
           trust_score?: number
           updated_at?: string
           username?: string
+          verification_notes?: string | null
+          verification_score?: number | null
+          verification_status?: string
+          verification_submitted_at?: string | null
         }
         Relationships: []
       }
@@ -614,6 +659,57 @@ export type Database = {
           created_at?: string
           id?: string
           role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
+      verification_requests: {
+        Row: {
+          ai_analysis: string | null
+          ai_score: number | null
+          bio: string | null
+          created_at: string
+          experience_years: number | null
+          github_url: string | null
+          id: string
+          is_teacher: boolean | null
+          portfolio_links: string[] | null
+          reviewed_at: string | null
+          skills: string[] | null
+          specialty: string | null
+          status: string
+          user_id: string
+        }
+        Insert: {
+          ai_analysis?: string | null
+          ai_score?: number | null
+          bio?: string | null
+          created_at?: string
+          experience_years?: number | null
+          github_url?: string | null
+          id?: string
+          is_teacher?: boolean | null
+          portfolio_links?: string[] | null
+          reviewed_at?: string | null
+          skills?: string[] | null
+          specialty?: string | null
+          status?: string
+          user_id: string
+        }
+        Update: {
+          ai_analysis?: string | null
+          ai_score?: number | null
+          bio?: string | null
+          created_at?: string
+          experience_years?: number | null
+          github_url?: string | null
+          id?: string
+          is_teacher?: boolean | null
+          portfolio_links?: string[] | null
+          reviewed_at?: string | null
+          skills?: string[] | null
+          specialty?: string | null
+          status?: string
           user_id?: string
         }
         Relationships: []

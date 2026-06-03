@@ -23,6 +23,7 @@ import {
   LayoutDashboard,
   UserCog,
   Lightbulb,
+  GraduationCap,
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useI18n } from "@/lib/i18n";
@@ -41,7 +42,7 @@ export function AppSidebar() {
     { titleKey: "nav.lessons", url: "/dashboard/lessons", icon: BookOpen },
     { titleKey: "nav.ideas", url: "/dashboard/ideas", icon: Lightbulb },
     { titleKey: "nav.projects", url: "/dashboard/projects", icon: ShoppingBag },
-    { titleKey: "nav.programmers", url: "/dashboard/programmers", icon: Code2 },
+    { titleKey: "nav.teachers", url: "/dashboard/teachers", icon: GraduationCap },
     { titleKey: "nav.messages", url: "/dashboard/messages", icon: MessageSquare },
     { titleKey: "nav.settings", url: "/dashboard/settings", icon: Settings },
   ];
