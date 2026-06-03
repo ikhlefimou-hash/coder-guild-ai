@@ -6,8 +6,8 @@ import { supabase } from "@/integrations/supabase/client";
 
 const PRIV_KEY_PREFIX = "devhub:privkey:";
 
-function b64encode(buf: ArrayBuffer): string {
-  const bytes = new Uint8Array(buf);
+function b64encode(buf: ArrayBufferLike): string {
+  const bytes = new Uint8Array(buf as ArrayBuffer);
   let s = "";
   for (let i = 0; i < bytes.length; i++) s += String.fromCharCode(bytes[i]);
   return btoa(s);
