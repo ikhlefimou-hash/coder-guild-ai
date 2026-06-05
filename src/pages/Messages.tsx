@@ -202,9 +202,21 @@ export default function Messages() {
     const f = e.target.files?.[0];
     e.target.value = "";
     if (!f || !user || !peerId) return;
-    if (f.size > MAX_FILE_SIZE) { toast.error(t("msg.attachTooBig")); return; }
-    if (BLOCKED_EXT.test(f.name) || (f.type && !ALLOWED_MIME.includes(f.type))) {
-      toast.error(t("msg.attachBlocked")); return;
+    if (f.size > MAX_FILE_SIZE) {
+      const sizeMB = (f.size / (1024 * 1024)).toFixed(2);
+      const maxMB = (MAX_FILE_SIZE / (1024 * 1024)).toFixed(0);
+      toast.error(t("msg.errSizeDetail", { size: `${sizeMB}MB`, max: `${maxMB}MB`, code: "ERR_FILE_TOO_LARGE" }));
+      return;
+    }
+    const extMatch = f.name.match(/\.[^.]+$/);
+    const ext = extMatch ? extMatch[0].toLowerCase() : "unknown";
+    if (BLOCKED_EXT.test(f.name)) {
+      toast.error(t("msg.errTypeDetail", { ext, mime: f.type || "unknown", code: "ERR_FILE_TYPE_BLOCKED" }));
+      return;
+    }
+    if (f.type && !ALLOWED_MIME.includes(f.type)) {
+      toast.error(t("msg.errTypeDetail", { ext, mime: f.type, code: "ERR_FILE_TYPE_BLOCKED" }));
+      return;
     }
     setUploading(true);
     try {

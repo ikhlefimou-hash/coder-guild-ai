@@ -375,6 +375,8 @@ const dict: Record<Lang, Record<string, string>> = {
     "msg.attachTooBig": "حجم الملف كبير (حد أقصى 20MB)",
     "msg.attachBlocked": "نوع الملف غير مسموح به",
     "msg.attachFailed": "فشل رفع الملف",
+    "msg.errSizeDetail": "حجم الملف {{size}} يتجاوز الحد الأقصى {{max}}. رمز الخطأ: {{code}}",
+    "msg.errTypeDetail": "امتداد الملف ({{ext}}) أو نوعه ({{mime}}) غير مسموح به. رمز الخطأ: {{code}}",
     "msg.peerNoKey": "المستلم لم يفعّل التشفير بعد، سيتم إرسالها بدون تشفير.",
   },
   fr: {
@@ -728,6 +730,8 @@ const dict: Record<Lang, Record<string, string>> = {
     "msg.attachTooBig": "Fichier trop volumineux (max 20 Mo)",
     "msg.attachBlocked": "Type de fichier non autorisé",
     "msg.attachFailed": "Échec du téléversement",
+    "msg.errSizeDetail": "Taille {{size}} dépasse la limite {{max}}. Code : {{code}}",
+    "msg.errTypeDetail": "Extension ({{ext}}) ou type MIME ({{mime}}) non autorisé. Code : {{code}}",
     "msg.peerNoKey": "Le destinataire n'a pas encore activé le chiffrement, message envoyé en clair.",
   },
   en: {
@@ -1081,6 +1085,8 @@ const dict: Record<Lang, Record<string, string>> = {
     "msg.attachTooBig": "File too large (max 20MB)",
     "msg.attachBlocked": "File type not allowed",
     "msg.attachFailed": "Upload failed",
+    "msg.errSizeDetail": "File size {{size}} exceeds the maximum {{max}}. Code: {{code}}",
+    "msg.errTypeDetail": "File extension ({{ext}}) or type ({{mime}}) not allowed. Code: {{code}}",
     "msg.peerNoKey": "Recipient hasn't enabled encryption yet, sending in cleartext.",
   },
 };
@@ -1088,7 +1094,7 @@ const dict: Record<Lang, Record<string, string>> = {
 interface Ctx {
   lang: Lang;
   setLang: (l: Lang) => void;
-  t: (key: string) => string;
+  t: (key: string, vars?: Record<string, string>) => string;
   dir: "rtl" | "ltr";
 }
 
@@ -1109,7 +1115,15 @@ export function I18nProvider({ children }: { children: ReactNode }) {
   }, [lang, dir]);
 
   const setLang = (l: Lang) => setLangState(l);
-  const t = (key: string) => dict[lang][key] ?? dict.ar[key] ?? key;
+  const t = (key: string, vars?: Record<string, string>) => {
+    let str = dict[lang][key] ?? dict.ar[key] ?? key;
+    if (vars) {
+      for (const [k, v] of Object.entries(vars)) {
+        str = str.replace(new RegExp(`\\{\\{${k}\\}\\}`, "g"), v);
+      }
+    }
+    return str;
+  };
 
   return <I18nContext.Provider value={{ lang, setLang, t, dir }}>{children}</I18nContext.Provider>;
 }
