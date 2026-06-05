@@ -1085,6 +1085,8 @@ const dict: Record<Lang, Record<string, string>> = {
     "msg.attachTooBig": "File too large (max 20MB)",
     "msg.attachBlocked": "File type not allowed",
     "msg.attachFailed": "Upload failed",
+    "msg.errSizeDetail": "File size {{size}} exceeds the maximum {{max}}. Code: {{code}}",
+    "msg.errTypeDetail": "File extension ({{ext}}) or type ({{mime}}) not allowed. Code: {{code}}",
     "msg.peerNoKey": "Recipient hasn't enabled encryption yet, sending in cleartext.",
   },
 };
