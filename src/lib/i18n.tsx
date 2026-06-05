@@ -730,6 +730,8 @@ const dict: Record<Lang, Record<string, string>> = {
     "msg.attachTooBig": "Fichier trop volumineux (max 20 Mo)",
     "msg.attachBlocked": "Type de fichier non autorisé",
     "msg.attachFailed": "Échec du téléversement",
+    "msg.errSizeDetail": "Taille {{size}} dépasse la limite {{max}}. Code : {{code}}",
+    "msg.errTypeDetail": "Extension ({{ext}}) ou type MIME ({{mime}}) non autorisé. Code : {{code}}",
     "msg.peerNoKey": "Le destinataire n'a pas encore activé le chiffrement, message envoyé en clair.",
   },
   en: {
