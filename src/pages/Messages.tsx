@@ -203,6 +203,9 @@ export default function Messages() {
     e.target.value = "";
     if (!f || !user || !peerId) return;
     if (f.size > MAX_FILE_SIZE) { toast.error(t("msg.attachTooBig")); return; }
+    if (BLOCKED_EXT.test(f.name) || (f.type && !ALLOWED_MIME.includes(f.type))) {
+      toast.error(t("msg.attachBlocked")); return;
+    }
     setUploading(true);
     try {
       const path = `${user.id}/${Date.now()}_${f.name.replace(/[^\w.\-]/g, "_")}`;
