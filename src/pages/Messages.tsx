@@ -35,6 +35,17 @@ interface DM {
 }
 
 const MAX_FILE_SIZE = 20 * 1024 * 1024;
+const ALLOWED_MIME = [
+  "image/png", "image/jpeg", "image/gif", "image/webp", "image/svg+xml",
+  "application/pdf", "text/plain", "text/csv",
+  "application/zip", "application/x-zip-compressed",
+  "application/msword", "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+  "application/vnd.ms-excel", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+  "application/vnd.ms-powerpoint", "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+  "audio/mpeg", "audio/wav", "audio/ogg",
+  "video/mp4", "video/webm",
+];
+const BLOCKED_EXT = /\.(exe|bat|cmd|sh|ps1|msi|app|dmg|jar|js|mjs|cjs|html?|php|py|rb|dll|so|apk|com|scr|vbs|lnk)$/i;
 
 export default function Messages() {
   const { user } = useAuth();
