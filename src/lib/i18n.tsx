@@ -1088,7 +1088,7 @@ const dict: Record<Lang, Record<string, string>> = {
 interface Ctx {
   lang: Lang;
   setLang: (l: Lang) => void;
-  t: (key: string) => string;
+  t: (key: string, vars?: Record<string, string>) => string;
   dir: "rtl" | "ltr";
 }
 
@@ -1109,7 +1109,15 @@ export function I18nProvider({ children }: { children: ReactNode }) {
   }, [lang, dir]);
 
   const setLang = (l: Lang) => setLangState(l);
-  const t = (key: string) => dict[lang][key] ?? dict.ar[key] ?? key;
+  const t = (key: string, vars?: Record<string, string>) => {
+    let str = dict[lang][key] ?? dict.ar[key] ?? key;
+    if (vars) {
+      for (const [k, v] of Object.entries(vars)) {
+        str = str.replace(new RegExp(`\\{\\{${k}\\}\\}`, "g"), v);
+      }
+    }
+    return str;
+  };
 
   return <I18nContext.Provider value={{ lang, setLang, t, dir }}>{children}</I18nContext.Provider>;
 }
