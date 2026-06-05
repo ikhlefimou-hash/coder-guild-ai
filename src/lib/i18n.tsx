@@ -375,6 +375,8 @@ const dict: Record<Lang, Record<string, string>> = {
     "msg.attachTooBig": "حجم الملف كبير (حد أقصى 20MB)",
     "msg.attachBlocked": "نوع الملف غير مسموح به",
     "msg.attachFailed": "فشل رفع الملف",
+    "msg.errSizeDetail": "حجم الملف {{size}} يتجاوز الحد الأقصى {{max}}. رمز الخطأ: {{code}}",
+    "msg.errTypeDetail": "امتداد الملف ({{ext}}) أو نوعه ({{mime}}) غير مسموح به. رمز الخطأ: {{code}}",
     "msg.peerNoKey": "المستلم لم يفعّل التشفير بعد، سيتم إرسالها بدون تشفير.",
   },
   fr: {
