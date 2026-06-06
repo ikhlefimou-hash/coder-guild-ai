@@ -7,7 +7,7 @@ import { AuthProvider } from "@/hooks/useAuth";
 import { I18nProvider } from "@/lib/i18n";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import DashboardLayout from "@/components/DashboardLayout";
-import ModulePlaceholder from "@/components/ModulePlaceholder";
+import Settings from "@/pages/Settings.tsx";
 import Index from "./pages/Index.tsx";
 import Auth from "./pages/Auth.tsx";
 import ForgotPassword from "./pages/ForgotPassword.tsx";
@@ -65,15 +65,7 @@ const App = () => (
               <Route path="teachers" element={<Teachers />} />
               <Route path="programmers" element={<Navigate to="/dashboard/teachers" replace />} />
               <Route path="messages" element={<Messages />} />
-              <Route
-                path="settings"
-                element={
-                  <ModulePlaceholder
-                    title="الإعدادات"
-                    description="اللغة، المظهر، تعديل الملف الشخصي."
-                  />
-                }
-              />
+              <Route path="settings" element={<Settings />} />
             </Route>
 
             {/* Legacy / standalone protected pages (kept for compatibility) */}
