@@ -65,15 +65,7 @@ const App = () => (
               <Route path="teachers" element={<Teachers />} />
               <Route path="programmers" element={<Navigate to="/dashboard/teachers" replace />} />
               <Route path="messages" element={<Messages />} />
-              <Route
-                path="settings"
-                element={
-                  <ModulePlaceholder
-                    title="الإعدادات"
-                    description="اللغة، المظهر، تعديل الملف الشخصي."
-                  />
-                }
-              />
+              <Route path="settings" element={<Settings />} />
             </Route>
 
             {/* Legacy / standalone protected pages (kept for compatibility) */}
