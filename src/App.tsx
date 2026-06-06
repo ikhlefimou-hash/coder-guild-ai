@@ -7,7 +7,7 @@ import { AuthProvider } from "@/hooks/useAuth";
 import { I18nProvider } from "@/lib/i18n";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import DashboardLayout from "@/components/DashboardLayout";
-import ModulePlaceholder from "@/components/ModulePlaceholder";
+import Settings from "@/pages/Settings.tsx";
 import Index from "./pages/Index.tsx";
 import Auth from "./pages/Auth.tsx";
 import ForgotPassword from "./pages/ForgotPassword.tsx";
