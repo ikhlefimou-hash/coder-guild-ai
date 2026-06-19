@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Code2, Bot, Users, BookOpen, ShoppingBag, Loader2 } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
+import LanguageSwitcher from "@/components/LanguageSwitcher";
 
 export default function Index() {
   const { user, loading } = useAuth();
