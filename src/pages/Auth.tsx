@@ -12,6 +12,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
 import { Code2, Loader2 } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
+import LanguageSwitcher from "@/components/LanguageSwitcher";
 
 export default function Auth() {
   const navigate = useNavigate();
@@ -108,6 +109,9 @@ export default function Auth() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-background p-4" dir={dir}>
       <div className="w-full max-w-md">
+        <div className="flex justify-end mb-2">
+          <LanguageSwitcher />
+        </div>
         <div className="mb-8 flex flex-col items-center gap-3 text-center">
           <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-primary shadow-glow">
             <Code2 className="h-7 w-7 text-primary-foreground" />
