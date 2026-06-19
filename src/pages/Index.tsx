@@ -37,9 +37,12 @@ export default function Index() {
             </div>
             <span className="text-lg font-bold text-gradient">DevHub</span>
           </div>
-          <Button asChild className="bg-gradient-primary shadow-glow">
-            <Link to="/auth">{t("index.signIn")}</Link>
-          </Button>
+          <div className="flex items-center gap-2">
+            <LanguageSwitcher />
+            <Button asChild className="bg-gradient-primary shadow-glow">
+              <Link to="/auth">{t("index.signIn")}</Link>
+            </Button>
+          </div>
         </div>
       </header>
 
