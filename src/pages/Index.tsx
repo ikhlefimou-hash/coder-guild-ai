@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Code2, Bot, Users, BookOpen, ShoppingBag, Loader2 } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
+import LanguageSwitcher from "@/components/LanguageSwitcher";
 
 export default function Index() {
   const { user, loading } = useAuth();
@@ -36,9 +37,12 @@ export default function Index() {
             </div>
             <span className="text-lg font-bold text-gradient">DevHub</span>
           </div>
-          <Button asChild className="bg-gradient-primary shadow-glow">
-            <Link to="/auth">{t("index.signIn")}</Link>
-          </Button>
+          <div className="flex items-center gap-2">
+            <LanguageSwitcher />
+            <Button asChild className="bg-gradient-primary shadow-glow">
+              <Link to="/auth">{t("index.signIn")}</Link>
+            </Button>
+          </div>
         </div>
       </header>
 
