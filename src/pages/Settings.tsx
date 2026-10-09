@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import { useTheme } from "next-themes";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -35,19 +36,11 @@ const themes: { code: Theme; labelKey: string; icon: React.ElementType }[] = [
   { code: "system", labelKey: "settings.themeSystem", icon: Monitor },
 ];
 
-function useTheme() {
-  const getSaved = (): Theme => {
-    const saved = localStorage.getItem("theme") as Theme | null;
-    return saved && ["dark", "light", "system"].includes(saved) ? saved : "dark";
-  };
-  return { theme: getSaved() };
-}
-
 export default function Settings() {
   const { user, signOut } = useAuth();
   const { lang, setLang, t, dir } = useI18n();
   const navigate = useNavigate();
-  const { theme } = useTheme();
+  const { theme, setTheme } = useTheme();
 
   useEffect(() => {
     document.title = `${t("nav.settings")} | DevHub`;
@@ -131,10 +124,7 @@ export default function Settings() {
                   variant={active ? "default" : "outline"}
                   size="sm"
                   className={active ? "bg-gradient-primary" : ""}
-                  onClick={() => {
-                    localStorage.setItem("theme", th.code);
-                    window.location.reload();
-                  }}
+                  onClick={() => setTheme(th.code)}
                 >
                   <Icon className="ml-2 h-4 w-4" />
                   {t(th.labelKey)}

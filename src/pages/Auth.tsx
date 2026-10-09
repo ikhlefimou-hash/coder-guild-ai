@@ -107,31 +107,37 @@ export default function Auth() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background p-4" dir={dir}>
-      <div className="w-full max-w-md">
-        <div className="flex justify-end mb-2">
+    <div className="auth-page min-h-svh bg-background" dir={dir}>
+      <header className="flex h-16 items-center justify-between border-b border-border/60 px-5 sm:px-10">
+        <Link to="/" className="flex items-center gap-2 text-sm font-semibold">
+          <Code2 className="h-5 w-5 text-primary" />
+          <span>DevHub</span>
+        </Link>
+        <div className="flex items-center">
           <LanguageSwitcher />
         </div>
+      </header>
+      <main className="mx-auto w-full max-w-[420px] px-5 pb-12 pt-10 sm:pt-16">
         <div className="mb-8 flex flex-col items-center gap-3 text-center">
-          <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-primary shadow-glow">
-            <Code2 className="h-7 w-7 text-primary-foreground" />
+          <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-primary/10">
+            <Code2 className="h-8 w-8 text-primary" />
           </div>
-          <h1 className="text-3xl font-bold text-gradient">DevHub</h1>
+          <h1 className="text-4xl font-semibold text-foreground">DevHub</h1>
           <p className="text-sm text-muted-foreground">{t("common.tagline")}</p>
         </div>
 
-        <Card className="shadow-card">
-          <CardHeader>
-            <CardTitle>{t("auth.welcome")}</CardTitle>
+        <Card className="border-0 bg-transparent shadow-none">
+          <CardHeader className="px-0 pb-6 pt-0 text-center">
+            <CardTitle className="text-2xl">{t("auth.welcome")}</CardTitle>
             <CardDescription>{t("auth.subtitle")}</CardDescription>
           </CardHeader>
-          <CardContent>
+          <CardContent className="px-0 pb-0">
             <Button
               type="button"
               variant="outline"
               onClick={handleGoogle}
               disabled={loading}
-              className="mb-4 w-full gap-2"
+              className="mb-5 h-12 w-full gap-2"
             >
               <svg className="h-4 w-4" viewBox="0 0 24 24" aria-hidden="true">
                 <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
@@ -144,7 +150,7 @@ export default function Auth() {
             <div className="relative mb-4">
               <div className="absolute inset-0 flex items-center"><span className="w-full border-t" /></div>
               <div className="relative flex justify-center text-xs uppercase">
-                <span className="bg-card px-2 text-muted-foreground">{t("auth.or")}</span>
+                <span className="bg-background px-3 text-muted-foreground">{t("auth.or")}</span>
               </div>
             </div>
             <Tabs defaultValue="signin" className="w-full" dir={dir}>
@@ -163,7 +169,7 @@ export default function Auth() {
                     <Label htmlFor="signin-password">{t("auth.password")}</Label>
                     <Input id="signin-password" name="password" type="password" required maxLength={72} />
                   </div>
-                  <Button type="submit" disabled={loading} className="w-full bg-gradient-primary shadow-glow">
+                  <Button type="submit" disabled={loading} className="h-12 w-full">
                     {loading && <Loader2 className="ml-2 h-4 w-4 animate-spin" />}
                     {t("auth.enter")}
                   </Button>
@@ -195,7 +201,7 @@ export default function Auth() {
                     <Label htmlFor="signup-password">{t("auth.passwordHint")}</Label>
                     <Input id="signup-password" name="password" type="password" required minLength={8} maxLength={72} />
                   </div>
-                  <Button type="submit" disabled={loading} className="w-full bg-gradient-primary shadow-glow">
+                  <Button type="submit" disabled={loading} className="h-12 w-full">
                     {loading && <Loader2 className="ml-2 h-4 w-4 animate-spin" />}
                     {t("auth.create")}
                   </Button>
@@ -204,7 +210,7 @@ export default function Auth() {
             </Tabs>
           </CardContent>
         </Card>
-      </div>
+      </main>
     </div>
   );
 }
