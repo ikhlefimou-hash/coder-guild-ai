@@ -70,25 +70,25 @@ export default function Services() {
 
   return (
     <div className="container py-8" dir={dir}>
-      <section className="mb-10 text-center">
-        <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-4 py-1.5 text-sm">
+      <section className="mb-8 border-b border-border/70 pb-8">
+        <div className="mb-4 inline-flex items-center gap-2 text-sm">
           <Sparkles className="h-4 w-4 text-primary" />
           <span className="text-foreground">{t("svc.platformTag")}</span>
         </div>
-        <h1 className="mb-3 text-4xl font-bold tracking-tight md:text-5xl">
+        <h1 className="mb-3 text-3xl font-semibold sm:text-4xl">
           {t("svc.title")} <span className="text-gradient">{t("svc.titleAccent")}</span>
         </h1>
-        <p className="mx-auto max-w-2xl text-muted-foreground">{t("svc.sub")}</p>
+        <p className="max-w-2xl text-sm leading-relaxed text-muted-foreground">{t("svc.sub")}</p>
       </section>
 
-      <div className="mx-auto mb-8 flex max-w-2xl items-center gap-2">
-        <div className="relative flex-1">
-          <Search className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+      <div className="mb-8 flex flex-wrap items-center gap-3">
+        <div className="relative min-w-0 flex-1 basis-64">
+          <Search className="absolute start-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <Input
             placeholder={t("svc.searchPlaceholder")}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="pr-10"
+            className="ps-10"
             maxLength={100}
           />
         </div>
