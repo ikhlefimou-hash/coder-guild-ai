@@ -73,6 +73,53 @@ export type Database = {
           },
         ]
       }
+      challenge_completions: {
+        Row: {
+          challenge_id: string
+          created_at: string
+          id: string
+          user_id: string
+          xp: number
+        }
+        Insert: {
+          challenge_id: string
+          created_at?: string
+          id?: string
+          user_id: string
+          xp: number
+        }
+        Update: {
+          challenge_id?: string
+          created_at?: string
+          id?: string
+          user_id?: string
+          xp?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "challenge_completions_challenge_id_fkey"
+            columns: ["challenge_id"]
+            isOneToOne: false
+            referencedRelation: "coding_challenges"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      coding_challenges: {
+        Row: {
+          id: string
+          xp: number
+        }
+        Insert: {
+          id: string
+          xp: number
+        }
+        Update: {
+          id?: string
+          xp?: number
+        }
+        Relationships: []
+      }
       direct_messages: {
         Row: {
           attachment_name: string | null
@@ -723,9 +770,22 @@ export type Database = {
         Args: { _group_id: string; _user_id: string }
         Returns: boolean
       }
+      complete_challenge: { Args: { _challenge_id: string }; Returns: number }
       get_group_role: {
         Args: { _group_id: string; _user_id: string }
         Returns: Database["public"]["Enums"]["group_member_role"]
+      }
+      get_leaderboard: {
+        Args: { _limit?: number }
+        Returns: {
+          avatar_url: string
+          full_name: string
+          is_verified: boolean
+          solved: number
+          user_id: string
+          username: string
+          xp: number
+        }[]
       }
       has_role: {
         Args: {
