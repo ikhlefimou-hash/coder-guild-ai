@@ -23,6 +23,7 @@ import Profile from "./pages/Profile.tsx";
 import PublicProfile from "./pages/PublicProfile.tsx";
 import AiChat from "./pages/AiChat.tsx";
 import Teachers from "./pages/Teachers.tsx";
+import CodeLab from "./pages/CodeLab.tsx";
 import Lessons from "./pages/Lessons.tsx";
 import Ideas from "./pages/Ideas.tsx";
 import Messages from "./pages/Messages.tsx";
@@ -59,6 +60,7 @@ const App = () => (
               <Route path="ai" element={<AiChat />} />
               <Route path="groups" element={<Groups />} />
               <Route path="groups/:id" element={<GroupDetail />} />
+              <Route path="lab" element={<CodeLab />} />
               <Route path="lessons" element={<Lessons />} />
               <Route path="ideas" element={<Ideas />} />
               <Route path="projects" element={<Services />} />

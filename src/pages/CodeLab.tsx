@@ -62,7 +62,7 @@ function runInWorker(code: string, fn: string, tests: Challenge["tests"]): Promi
 interface Leader { user_id: string; username: string; full_name: string | null; avatar_url: string | null; is_verified: boolean; xp: number; solved: number }
 
 export default function CodeLab() {
-  const { t, dir, lang } = useI18n() as ReturnType<typeof useI18n> & { lang: keyof L };
+  const { t, dir, lang } = useI18n();
   const { user } = useAuth();
   const [active, setActive] = useState(CH[0]);
   const [codes, setCodes] = useState<Record<string, string>>(() => Object.fromEntries(CH.map((c) => [c.id, c.starter])));
@@ -70,7 +70,7 @@ export default function CodeLab() {
   const [running, setRunning] = useState(false);
   const [out, setOut] = useState<{ results?: Result[]; logs: string[]; error?: string } | null>(null);
   const [leaders, setLeaders] = useState<Leader[]>([]);
-  const L = (l: L) => l[lang] ?? l.en;
+  const L = (l: L) => l[lang as keyof L] ?? l.en;
 
   const xp = useMemo(() => CH.filter((c) => solved.has(c.id)).reduce((s, c) => s + c.xp, 0), [solved]);
   const level = levelOf(xp);

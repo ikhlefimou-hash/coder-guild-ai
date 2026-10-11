@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { ArrowUpLeft, Bot, Users, BookOpen, ShoppingBag, GraduationCap, MessageSquare, Settings, Lightbulb } from "lucide-react";
+import { ArrowUpLeft, Bot, Users, BookOpen, ShoppingBag, GraduationCap, MessageSquare, Settings, Lightbulb, Terminal } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useI18n } from "@/lib/i18n";
 
@@ -10,6 +10,7 @@ export default function Dashboard() {
   const modules = [
     { title: t("nav.ai"), desc: t("dashboard.mod.ai.desc"), url: "/dashboard/ai", icon: Bot },
     { title: t("nav.groups"), desc: t("dashboard.mod.groups.desc"), url: "/dashboard/groups", icon: Users },
+    { title: t("nav.lab"), desc: t("lab.sub"), url: "/dashboard/lab", icon: Terminal },
     { title: t("nav.lessons"), desc: t("dashboard.mod.lessons.desc"), url: "/dashboard/lessons", icon: BookOpen },
     { title: t("nav.ideas"), desc: t("dashboard.mod.ideas.desc"), url: "/dashboard/ideas", icon: Lightbulb },
     { title: t("nav.projects"), desc: t("dashboard.mod.projects.desc"), url: "/dashboard/projects", icon: ShoppingBag },

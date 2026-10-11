@@ -15,7 +15,7 @@ export default function DashboardLayout() {
   const location = useLocation();
   const section = [
     ["/dashboard/ai", "nav.ai"], ["/dashboard/groups", "nav.groups"],
-    ["/dashboard/lessons", "nav.lessons"], ["/dashboard/ideas", "nav.ideas"],
+    ["/dashboard/lab", "nav.lab"], ["/dashboard/lessons", "nav.lessons"], ["/dashboard/ideas", "nav.ideas"],
     ["/dashboard/projects", "nav.projects"], ["/dashboard/teachers", "nav.teachers"],
     ["/dashboard/messages", "nav.messages"], ["/dashboard/settings", "nav.settings"],
     ["/profile", "nav.profile"], ["/users", "nav.profile"],
