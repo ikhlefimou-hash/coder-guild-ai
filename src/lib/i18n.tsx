@@ -4,6 +4,8 @@ export type Lang = "ar" | "fr" | "en";
 
 const dict: Record<Lang, Record<string, string>> = {
   ar: {
+    "lab.locked": "مقفل — ارفع مستواك",
+    "lab.loadingPy": "جارٍ التشغيل...",
     "nav.lab": "تعلّم البرمجة",
     "lab.sub": "حل تحديات الكود وارفع مستواك وترتيبك",
     "lab.level": "المستوى",
@@ -402,6 +404,8 @@ const dict: Record<Lang, Record<string, string>> = {
     "msg.peerNoKey": "المستلم لم يفعّل التشفير بعد، سيتم إرسالها بدون تشفير.",
   },
   fr: {
+    "lab.locked": "verrouillé — montez de niveau",
+    "lab.loadingPy": "Exécution...",
     "nav.lab": "Apprendre à coder",
     "lab.sub": "Résolvez des défis et montez de niveau",
     "lab.level": "Niveau",
@@ -779,6 +783,8 @@ const dict: Record<Lang, Record<string, string>> = {
     "msg.peerNoKey": "Le destinataire n'a pas encore activé le chiffrement, message envoyé en clair.",
   },
   en: {
+    "lab.locked": "locked — level up first",
+    "lab.loadingPy": "Running...",
     "nav.lab": "Learn to code",
     "lab.sub": "Solve code challenges to level up and climb the ranking",
     "lab.level": "Level",
