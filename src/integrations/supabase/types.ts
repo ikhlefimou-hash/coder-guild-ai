@@ -73,25 +73,78 @@ export type Database = {
           },
         ]
       }
+      challenge_attempts: {
+        Row: {
+          challenge_id: string
+          code: string
+          created_at: string
+          hints_used: number
+          id: string
+          language: string
+          passed: boolean
+          passed_count: number
+          total_count: number
+          user_id: string
+        }
+        Insert: {
+          challenge_id: string
+          code: string
+          created_at?: string
+          hints_used?: number
+          id?: string
+          language: string
+          passed: boolean
+          passed_count: number
+          total_count: number
+          user_id: string
+        }
+        Update: {
+          challenge_id?: string
+          code?: string
+          created_at?: string
+          hints_used?: number
+          id?: string
+          language?: string
+          passed?: boolean
+          passed_count?: number
+          total_count?: number
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "challenge_attempts_challenge_id_fkey"
+            columns: ["challenge_id"]
+            isOneToOne: false
+            referencedRelation: "coding_challenges"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       challenge_completions: {
         Row: {
           challenge_id: string
           created_at: string
+          hints_used: number
           id: string
+          language: string
           user_id: string
           xp: number
         }
         Insert: {
           challenge_id: string
           created_at?: string
+          hints_used?: number
           id?: string
+          language?: string
           user_id: string
           xp: number
         }
         Update: {
           challenge_id?: string
           created_at?: string
+          hints_used?: number
           id?: string
+          language?: string
           user_id?: string
           xp?: number
         }
@@ -105,17 +158,140 @@ export type Database = {
           },
         ]
       }
+      challenge_hint_usage: {
+        Row: {
+          challenge_id: string
+          hints_used: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          challenge_id: string
+          hints_used?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          challenge_id?: string
+          hints_used?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "challenge_hint_usage_challenge_id_fkey"
+            columns: ["challenge_id"]
+            isOneToOne: false
+            referencedRelation: "coding_challenges"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      challenge_hints: {
+        Row: {
+          body: Json
+          challenge_id: string
+          idx: number
+        }
+        Insert: {
+          body: Json
+          challenge_id: string
+          idx: number
+        }
+        Update: {
+          body?: Json
+          challenge_id?: string
+          idx?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "challenge_hints_challenge_id_fkey"
+            columns: ["challenge_id"]
+            isOneToOne: false
+            referencedRelation: "coding_challenges"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      challenge_tests: {
+        Row: {
+          args: Json
+          challenge_id: string
+          expected: Json
+          id: string
+          idx: number
+          is_hidden: boolean
+        }
+        Insert: {
+          args: Json
+          challenge_id: string
+          expected: Json
+          id?: string
+          idx: number
+          is_hidden?: boolean
+        }
+        Update: {
+          args?: Json
+          challenge_id?: string
+          expected?: Json
+          id?: string
+          idx?: number
+          is_hidden?: boolean
+        }
+        Relationships: [
+          {
+            foreignKeyName: "challenge_tests_challenge_id_fkey"
+            columns: ["challenge_id"]
+            isOneToOne: false
+            referencedRelation: "coding_challenges"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       coding_challenges: {
         Row: {
+          created_at: string
+          description: Json
+          difficulty: string
+          fn_name: string | null
           id: string
+          is_active: boolean
+          languages: string[]
+          level: number
+          params: string
+          sort: number
+          title: Json
+          topic: string
           xp: number
         }
         Insert: {
+          created_at?: string
+          description?: Json
+          difficulty?: string
+          fn_name?: string | null
           id: string
+          is_active?: boolean
+          languages?: string[]
+          level?: number
+          params?: string
+          sort?: number
+          title?: Json
+          topic?: string
           xp: number
         }
         Update: {
+          created_at?: string
+          description?: Json
+          difficulty?: string
+          fn_name?: string | null
           id?: string
+          is_active?: boolean
+          languages?: string[]
+          level?: number
+          params?: string
+          sort?: number
+          title?: Json
+          topic?: string
           xp?: number
         }
         Relationships: []
@@ -372,6 +548,33 @@ export type Database = {
           seller_id?: string
           title?: string
           updated_at?: string
+        }
+        Relationships: []
+      }
+      lab_levels: {
+        Row: {
+          example: Json
+          lesson: Json
+          level: number
+          slug: string
+          title: Json
+          unlock_required: number
+        }
+        Insert: {
+          example?: Json
+          lesson: Json
+          level: number
+          slug: string
+          title: Json
+          unlock_required?: number
+        }
+        Update: {
+          example?: Json
+          lesson?: Json
+          level?: number
+          slug?: string
+          title?: Json
+          unlock_required?: number
         }
         Relationships: []
       }
@@ -771,10 +974,42 @@ export type Database = {
         Returns: boolean
       }
       complete_challenge: { Args: { _challenge_id: string }; Returns: number }
+      get_challenge_tests: {
+        Args: { _challenge_id: string }
+        Returns: {
+          args: Json
+          expected: Json
+          idx: number
+          is_hidden: boolean
+        }[]
+      }
       get_group_role: {
         Args: { _group_id: string; _user_id: string }
         Returns: Database["public"]["Enums"]["group_member_role"]
       }
+      get_hints: { Args: { _challenge_id: string }; Returns: Json }
+      get_lab_leaderboard: {
+        Args: {
+          _language?: string
+          _limit?: number
+          _scope?: string
+          _search?: string
+        }
+        Returns: {
+          avatar_url: string
+          full_name: string
+          is_me: boolean
+          is_verified: boolean
+          rnk: number
+          skill_level: number
+          solved: number
+          success_rate: number
+          user_id: string
+          username: string
+          xp: number
+        }[]
+      }
+      get_lab_stats: { Args: { _user_id: string }; Returns: Json }
       get_leaderboard: {
         Args: { _limit?: number }
         Returns: {
@@ -801,6 +1036,21 @@ export type Database = {
       is_group_member: {
         Args: { _group_id: string; _user_id: string }
         Returns: boolean
+      }
+      lab_level_unlocked: {
+        Args: { _level: number; _user: string }
+        Returns: boolean
+      }
+      lab_skill_level: { Args: { _xp: number }; Returns: number }
+      reveal_hint: { Args: { _challenge_id: string }; Returns: Json }
+      submit_solution: {
+        Args: {
+          _challenge_id: string
+          _code: string
+          _language: string
+          _outputs: Json
+        }
+        Returns: Json
       }
     }
     Enums: {
