@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable";
@@ -13,9 +13,12 @@ import { toast } from "sonner";
 import { Code2, Loader2 } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
+import { oauthReturnPath } from "@/lib/oauth-return-path";
 
 export default function Auth() {
   const navigate = useNavigate();
+  const [params] = useSearchParams();
+  const next = params.has("next") ? oauthReturnPath(params.get("next")) : "/dashboard";
   const { user, loading: authLoading } = useAuth();
   const [loading, setLoading] = useState(false);
   const { t, dir } = useI18n();
@@ -33,8 +36,8 @@ export default function Auth() {
   });
 
   useEffect(() => {
-    if (!authLoading && user) navigate("/dashboard", { replace: true });
-  }, [user, authLoading, navigate]);
+    if (!authLoading && user) navigate(next, { replace: true });
+  }, [user, authLoading, navigate, next]);
 
   const handleSignUp = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -54,7 +57,7 @@ export default function Auth() {
       email: parsed.data.email,
       password: parsed.data.password,
       options: {
-        emailRedirectTo: `${window.location.origin}/dashboard`,
+        emailRedirectTo: new URL(next, window.location.origin).href,
         data: {
           first_name: parsed.data.first_name,
           last_name: parsed.data.last_name,
@@ -89,13 +92,13 @@ export default function Auth() {
       return;
     }
     toast.success(t("auth.ok.welcomeBack"));
-    navigate("/dashboard");
+    navigate(next);
   };
 
   const handleGoogle = async () => {
     setLoading(true);
     const result = await lovable.auth.signInWithOAuth("google", {
-      redirect_uri: `${window.location.origin}/auth`,
+      redirect_uri: new URL(`/auth?next=${encodeURIComponent(next)}`, window.location.origin).href,
     });
     if (result.redirected) return;
     setLoading(false);
@@ -103,7 +106,7 @@ export default function Auth() {
       toast.error(t("auth.err.google"));
       return;
     }
-    navigate("/dashboard");
+    navigate(next);
   };
 
   return (
