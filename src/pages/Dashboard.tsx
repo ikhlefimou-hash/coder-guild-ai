@@ -3,6 +3,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { ArrowUpLeft, Bot, Users, BookOpen, ShoppingBag, GraduationCap, MessageSquare, Settings, Lightbulb, Terminal } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useI18n } from "@/lib/i18n";
+import { useWebMCP } from "use-webmcp-tool";
+import { runWebMCPTool } from "@/lib/webmcp-telemetry";
 
 export default function Dashboard() {
   const { user } = useAuth();
@@ -18,6 +20,13 @@ export default function Dashboard() {
     { title: t("nav.messages"), desc: t("dashboard.mod.messages.desc"), url: "/dashboard/messages", icon: MessageSquare },
     { title: t("nav.settings"), desc: t("dashboard.mod.settings.desc"), url: "/dashboard/settings", icon: Settings },
   ];
+  useWebMCP({
+    name: "list_dashboard_sections",
+    description: "Read the DevHub sections shown on the current dashboard, with their local page paths.",
+    annotations: { readOnlyHint: true },
+    enabled: Boolean(user),
+    execute: () => runWebMCPTool("list_dashboard_sections", () => modules.map((module) => `${module.title}: ${module.url}`).join("\n")),
+  });
   return (
     <div className="container py-8 sm:py-12" dir={dir}>
       <div className="mb-10 border-b border-border/70 pb-8">

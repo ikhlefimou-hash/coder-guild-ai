@@ -11,7 +11,7 @@ export default defineTool({
     const userId = ctx.getUserId();
     if (!userId) return { content: [{ type: "text", text: "Sign in to read your profile." }], isError: true };
     const client = await supabaseForUser(ctx);
-    const { data, error } = await client.from("profiles").select("username,full_name,bio,skills,is_verified").eq("id", userId).maybeSingle().abortSignal(ctx.signal);
+    const { data, error } = await client.from("profiles").select("username,full_name,bio,skills,is_verified").eq("id", userId).abortSignal(ctx.signal).maybeSingle();
     if (error) return { content: [{ type: "text", text: "Unable to load your profile." }], isError: true };
     if (!data) return { content: [{ type: "text", text: "No profile found." }] };
     const profile = { username: String(data.username), full_name: data.full_name == null ? null : String(data.full_name), bio: data.bio == null ? null : String(data.bio), skills: Array.isArray(data.skills) ? data.skills.map(String) : [], is_verified: Boolean(data.is_verified) };
