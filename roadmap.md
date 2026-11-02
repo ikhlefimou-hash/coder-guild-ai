@@ -4,6 +4,7 @@
 - [ ] Verify public and authenticated pages, language switching, and both appearances.
 
 # Agent integrations
-- [ ] Enable protected OAuth and add read-only remote profile and lesson tools.
-- [ ] Add page-local dashboard tools and verify consent, authentication return paths, tests, and manifest.
+- [x] Enable protected OAuth and add read-only remote profile and lesson tools.
+- [x] Add page-local dashboard read tool, validate manifest and safe return tests, and check consent error states and approve/deny with a mocked provider.
+- [ ] Verify hosted OAuth connection and remote tool calls after republishing; Google/signup round trips remain unverified.
 - [ ] Republish the final integration (requires the user's publication).
