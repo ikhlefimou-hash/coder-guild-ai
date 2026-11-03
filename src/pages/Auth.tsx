@@ -14,6 +14,7 @@ import { Code2, Loader2 } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
 import { oauthReturnPath } from "@/lib/oauth-return-path";
+import { supportsManagedOAuth } from "@/lib/oauth-host";
 
 export default function Auth() {
   const navigate = useNavigate();
@@ -92,10 +93,14 @@ export default function Auth() {
       return;
     }
     toast.success(t("auth.ok.welcomeBack"));
-    navigate(next);
+    navigate(next, { replace: true });
   };
 
   const handleGoogle = async () => {
+    if (!supportsManagedOAuth(window.location.hostname)) {
+      toast.error("Google sign-in works only on the Lovable preview or published site. Use email and password locally.");
+      return;
+    }
     setLoading(true);
     const result = await lovable.auth.signInWithOAuth("google", {
       redirect_uri: new URL(`/auth?next=${encodeURIComponent(next)}`, window.location.origin).href,
