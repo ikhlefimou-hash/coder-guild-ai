@@ -15,6 +15,7 @@ import { useI18n } from "@/lib/i18n";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
 import { oauthReturnPath } from "@/lib/oauth-return-path";
 import { supportsManagedOAuth } from "@/lib/oauth-host";
+import { signupDestination } from "@/lib/signup-destination";
 
 export default function Auth() {
   const navigate = useNavigate();
@@ -54,7 +55,7 @@ export default function Auth() {
       return;
     }
     setLoading(true);
-    const { error } = await supabase.auth.signUp({
+    const { data, error } = await supabase.auth.signUp({
       email: parsed.data.email,
       password: parsed.data.password,
       options: {
@@ -69,6 +70,12 @@ export default function Auth() {
     setLoading(false);
     if (error) {
       toast.error(error.message.includes("already") ? t("auth.err.exists") : error.message);
+      return;
+    }
+    const destination = signupDestination(data.session, next);
+    if (destination) {
+      toast.success(t("auth.ok.welcomeBack"));
+      navigate(destination, { replace: true });
       return;
     }
     toast.success(t("auth.ok.created"));
