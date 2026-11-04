@@ -11,6 +11,8 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import VerifiedBadge from "@/components/VerifiedBadge";
 import { CheckCircle2, Lightbulb, Loader2, Lock, Play, Send, Trophy, XCircle } from "lucide-react";
 import { toast } from "sonner";
+import Editor from "@monaco-editor/react";
+import { useTheme } from "next-themes";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import {
   labApi, loc, starter, runCode, jsonEqual, show, levelProgress, badgeFor,
@@ -24,6 +26,7 @@ interface Leader { rnk: number; user_id: string; username: string; full_name: st
 export default function CodeLab() {
   const { t, dir, lang } = useI18n();
   const { user } = useAuth();
+  const { resolvedTheme } = useTheme();
   const [challenges, setChallenges] = useState<LabChallenge[]>([]);
   const [levels, setLevels] = useState<LabLevel[]>([]);
   const [active, setActive] = useState<LabChallenge | null>(null);
@@ -167,10 +170,12 @@ export default function CodeLab() {
                   </details>}
                 </CardHeader>
                 <CardContent className="space-y-3">
-                  <textarea dir="ltr" spellCheck={false} value={code} aria-label="code editor"
-                    onChange={(e) => setCodes({ ...codes, [key]: e.target.value })}
-                    onKeyDown={(e) => { if (e.key === "Tab") { e.preventDefault(); const el = e.currentTarget; const s = el.selectionStart; const v = el.value.slice(0, s) + "    " + el.value.slice(el.selectionEnd); setCodes({ ...codes, [key]: v }); requestAnimationFrame(() => { el.selectionStart = el.selectionEnd = s + 4; }); } }}
-                    className="h-64 w-full resize-y rounded-lg border border-border bg-muted/50 p-3 font-mono text-sm focus:outline-none focus:ring-2 focus:ring-ring" />
+                  <div dir="ltr" className="overflow-hidden rounded-lg border border-border" data-testid="code-editor">
+                    <Editor height="320px" language={plang} value={code} theme={resolvedTheme === "dark" ? "vs-dark" : "light"}
+                      onChange={(v) => setCodes((p) => ({ ...p, [key]: v ?? "" }))}
+                      loading={<Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />}
+                      options={{ minimap: { enabled: false }, fontSize: 14, lineNumbers: "on", tabSize: 4, scrollBeyondLastLine: false, automaticLayout: true, wordWrap: "on" }} />
+                  </div>
                   <div className="flex flex-wrap gap-2">
                     <Select value={plang} onValueChange={(v) => { setPlang(v as LabLang); setOut(null); setVerdict(null); }}>
                       <SelectTrigger className="w-36" aria-label="language"><SelectValue /></SelectTrigger>
