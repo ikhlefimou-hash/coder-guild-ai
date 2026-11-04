@@ -213,6 +213,32 @@ export type Database = {
           },
         ]
       }
+      challenge_solutions: {
+        Row: {
+          challenge_id: string
+          code: Json
+          explanation: Json
+        }
+        Insert: {
+          challenge_id: string
+          code: Json
+          explanation: Json
+        }
+        Update: {
+          challenge_id?: string
+          code?: Json
+          explanation?: Json
+        }
+        Relationships: [
+          {
+            foreignKeyName: "challenge_solutions_challenge_id_fkey"
+            columns: ["challenge_id"]
+            isOneToOne: true
+            referencedRelation: "coding_challenges"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       challenge_tests: {
         Row: {
           args: Json
@@ -548,6 +574,36 @@ export type Database = {
           seller_id?: string
           title?: string
           updated_at?: string
+        }
+        Relationships: []
+      }
+      lab_lessons: {
+        Row: {
+          band: string
+          body: Json
+          challenge_ids: string[]
+          example: string
+          slug: string
+          sort: number
+          title: Json
+        }
+        Insert: {
+          band: string
+          body: Json
+          challenge_ids?: string[]
+          example?: string
+          slug: string
+          sort: number
+          title: Json
+        }
+        Update: {
+          band?: string
+          body?: Json
+          challenge_ids?: string[]
+          example?: string
+          slug?: string
+          sort?: number
+          title?: Json
         }
         Relationships: []
       }
@@ -1021,6 +1077,10 @@ export type Database = {
           username: string
           xp: number
         }[]
+      }
+      get_solution: {
+        Args: { _challenge_id: string; _language: string }
+        Returns: Json
       }
       has_role: {
         Args: {
