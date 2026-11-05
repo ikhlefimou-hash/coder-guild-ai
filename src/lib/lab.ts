@@ -183,3 +183,72 @@ export const labApi = {
     return data as unknown as LabStats | null;
   },
 };
+
+// ---------- Free Python playground (Pydroid-like console with input()) ----------
+const PLAY_WORKER = `
+importScripts('https://cdn.jsdelivr.net/pyodide/v0.26.4/full/pyodide.js');
+let py = null;
+self.onmessage = async (e) => {
+  const { id, code, stdin } = e.data;
+  const out = [];
+  const push = (kind, text) => { if (out.length < 2000) out.push({ kind, text }); };
+  try {
+    if (!py) py = await loadPyodide({ indexURL: 'https://cdn.jsdelivr.net/pyodide/v0.26.4/full/' });
+    self.postMessage({ id, type: 'started' });
+    const lines = [...stdin];
+    py.setStdout({ write: (b) => { push('out', new TextDecoder().decode(b)); return b.length; } });
+    py.setStderr({ write: (b) => { push('err', new TextDecoder().decode(b)); return b.length; } });
+    py.setStdin({ stdin: () => { if (!lines.length) throw new Error('EOF'); const l = lines.shift(); push('in', l + '\\n'); return l; } });
+    py.globals.set('__src', code);
+    py.runPython("ns={'__name__':'__main__'}\\nexec(compile(__src,'main.py','exec'),ns)");
+    self.postMessage({ id, type: 'done', out });
+  } catch (err) {
+    const msg = String(err && err.message || err);
+    const parts = msg.split('\\n');
+    const start = parts.findIndex((p) => p.includes('main.py'));
+    const tb = (start >= 0 ? parts.slice(start) : parts.slice(-3)).join('\\n').trim();
+    const m = [...msg.matchAll(/File "main.py", line (\\d+)/g)].pop();
+    let text = tb;
+    if (/EOFError|Error: EOF/.test(msg)) text = 'EOFError: input() needs more lines in the Input box';
+    push('err', text + '\\n');
+    self.postMessage({ id, type: 'done', out, errorLine: m ? Number(m[1]) : null, error: text });
+  }
+};`;
+export type ConsoleChunk = { kind: "out" | "err" | "in"; text: string };
+export type PlayOut = { out: ConsoleChunk[]; error?: string; errorLine?: number | null };
+let playWorker: Worker | null = null; let playSeq = 0;
+export function stopPlayground() { playWorker?.terminate(); playWorker = null; }
+export function runPlayground(code: string, stdin: string[]): Promise<PlayOut> {
+  return new Promise((resolve) => {
+    if (!playWorker) playWorker = new Worker(URL.createObjectURL(new Blob([PLAY_WORKER], { type: "text/javascript" })));
+    const w = playWorker; const id = ++playSeq;
+    let exec: ReturnType<typeof setTimeout> | undefined;
+    const load = setTimeout(() => finish({ out: [{ kind: "err", text: "Python could not load (network?)\n" }] }, true), 60000);
+    const finish = (r: PlayOut, kill = false) => {
+      clearTimeout(load); if (exec) clearTimeout(exec); w.removeEventListener("message", onMsg);
+      if (kill) { w.terminate(); if (playWorker === w) playWorker = null; }
+      resolve(r);
+    };
+    const onMsg = (e: MessageEvent) => {
+      if (e.data.id !== id) return;
+      if (e.data.type === "started") { clearTimeout(load); exec = setTimeout(() => finish({ out: [{ kind: "err", text: "TimeoutError: code ran longer than 8s (infinite loop?)\n" }] }, true), 8000); }
+      else finish(e.data);
+    };
+    w.addEventListener("message", onMsg);
+    w.postMessage({ id, code, stdin });
+  });
+}
+
+export interface LabLesson { slug: string; sort: number; band: string; title: Loc; body: Loc; example: string; challenge_ids: string[] }
+export const lessonApi = {
+  async list() { const { data } = await supabase.from("lab_lessons").select("*").order("sort"); return (data ?? []) as unknown as LabLesson[]; },
+  async solution(id: string, language: LabLang) {
+    const { data } = await supabase.rpc("get_solution", { _challenge_id: id, _language: language });
+    return data as { code: string | null; explanation: Loc } | null;
+  },
+  async history(userId: string, id: string) {
+    const { data } = await supabase.from("challenge_attempts").select("id,language,passed,passed_count,total_count,hints_used,created_at")
+      .eq("user_id", userId).eq("challenge_id", id).order("created_at", { ascending: false }).limit(10);
+    return (data ?? []) as { id: string; language: string; passed: boolean; passed_count: number; total_count: number; hints_used: number; created_at: string }[];
+  },
+};
