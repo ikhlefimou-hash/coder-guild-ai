@@ -9,7 +9,7 @@ import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import VerifiedBadge from "@/components/VerifiedBadge";
-import { CheckCircle2, Lightbulb, Loader2, Lock, Play, Send, Trophy, XCircle } from "lucide-react";
+import { BookOpen, CheckCircle2, Eraser, History, Lightbulb, Loader2, Lock, Play, Send, Trophy, XCircle } from "lucide-react";
 import { toast } from "sonner";
 import Editor from "@monaco-editor/react";
 import { useTheme } from "next-themes";
@@ -18,6 +18,9 @@ import {
   labApi, loc, starter, runCode, jsonEqual, show, levelProgress, badgeFor,
   type LabChallenge, type LabLevel, type LabLang, type LabTest, type LabStats, type RunOut, type Loc,
 } from "@/lib/lab";
+import { lessonApi, type LabLesson } from "@/lib/lab";
+import PyPlayground from "@/components/lab/PyPlayground";
+import { labText } from "@/components/lab/labText";
 
 const LANGS: { id: LabLang; label: string }[] = [{ id: "python", label: "Python" }, { id: "javascript", label: "JavaScript" }];
 
@@ -41,6 +44,19 @@ export default function CodeLab() {
   const [stats, setStats] = useState<LabStats | null>(null);
   const [leaders, setLeaders] = useState<Leader[]>([]);
   const [boardLang, setBoardLang] = useState<string>("all");
+  const [tab, setTab] = useState("lessons");
+  const [lessons, setLessons] = useState<LabLesson[]>([]);
+  const [lessonSlug, setLessonSlug] = useState<string>("intro");
+  const [solution, setSolution] = useState<{ code: string | null; explanation: Loc } | null>(null);
+  const [history, setHistory] = useState<Awaited<ReturnType<typeof lessonApi.history>>>([]);
+  const L = labText(lang);
+  const loadExtra = useCallback(async () => {
+    if (!user || !active) return;
+    const [h, sol] = await Promise.all([lessonApi.history(user.id, active.id), lessonApi.solution(active.id, plang)]);
+    setHistory(h); setSolution(sol?.code ? sol : null);
+  }, [user, active, plang]);
+  useEffect(() => { loadExtra(); }, [loadExtra]);
+  useEffect(() => { lessonApi.list().then(setLessons); }, []);
 
   const key = active ? `${active.id}:${plang}` : "";
   const code = active ? codes[key] ?? starter(active, plang) : "";
@@ -101,7 +117,7 @@ export default function CodeLab() {
         setVerdict(s.first_time ? `✅ +${s.xp_awarded} XP · ${t("lab.level")} ${s.level}` : `✅ ${t("lab.allPassed")} (0 XP)`);
         toast.success(s.first_time ? `${t("lab.solved")} +${s.xp_awarded} XP` : t("lab.allPassed"));
       } else setVerdict(`❌ ${s.passed_count}/${s.total}${s.hidden_failed ? ` · hidden failed: ${s.hidden_failed}` : ""}`);
-      await Promise.all([refresh(), loadBoard()]);
+      await Promise.all([refresh(), loadBoard(), loadExtra()]);
     } catch (e) { toast.error((e as Error).message); }
     finally { setBusy(null); }
   };
@@ -126,8 +142,62 @@ export default function CodeLab() {
           <p className="mt-1 text-xs text-muted-foreground">{stats?.success_rate ?? 0}% · {stats?.attempts ?? 0}</p></CardContent></Card>
       </div>
 
-      <Tabs defaultValue="practice">
-        <TabsList><TabsTrigger value="practice">{t("lab.practice")}</TabsTrigger><TabsTrigger value="board">{t("lab.leaderboard")}</TabsTrigger></TabsList>
+      <Tabs value={tab} onValueChange={setTab}>
+        <TabsList className="flex-wrap h-auto"><TabsTrigger value="lessons">{L.lessons}</TabsTrigger><TabsTrigger value="console">{L.playground}</TabsTrigger><TabsTrigger value="practice">{t("lab.practice")}</TabsTrigger><TabsTrigger value="board">{t("lab.leaderboard")}</TabsTrigger></TabsList>
+
+        <TabsContent value="lessons" className="mt-4">
+          <div className="grid gap-4 lg:grid-cols-[260px_1fr]">
+            <div className="flex gap-2 overflow-x-auto lg:flex-col">
+              {(["beginner", "easy", "intermediate", "advanced"] as const).map((b) => (
+                <div key={b} className="contents lg:block lg:space-y-2">
+                  <p className="hidden text-xs font-semibold text-muted-foreground lg:block">{L.bands[b]}</p>
+                  {lessons.filter((x) => x.band === b).map((ls) => {
+                    const doneN = ls.challenge_ids.filter((id) => solvedIds.has(id)).length;
+                    return (
+                      <button key={ls.slug} onClick={() => setLessonSlug(ls.slug)}
+                        className={`flex min-w-[180px] w-full items-center justify-between gap-2 rounded-lg border p-3 text-start text-sm transition ${lessonSlug === ls.slug ? "border-primary bg-primary/10" : "border-border bg-card hover:bg-muted"}`}>
+                        <span className="flex items-center gap-2"><BookOpen className="h-4 w-4 text-primary" />{ls.sort}. {loc(ls.title, lang)}</span>
+                        <span className="text-xs text-muted-foreground">{doneN}/{ls.challenge_ids.length}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              ))}
+            </div>
+            {(() => {
+              const ls = lessons.find((x) => x.slug === lessonSlug);
+              if (!ls) return null;
+              return (
+                <Card className="min-w-0">
+                  <CardHeader className="pb-3">
+                    <CardTitle className="flex flex-wrap items-center gap-2 text-lg">{loc(ls.title, lang)}<Badge variant="outline">{L.bands[ls.band as "easy"]}</Badge></CardTitle>
+                    <p className="whitespace-pre-wrap text-sm text-muted-foreground">{loc(ls.body, lang)}</p>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <p className="text-sm font-medium">{L.tryIt}</p>
+                    <PyPlayground initial={ls.example} height="220px" />
+                    <div>
+                      <p className="mb-2 text-sm font-medium">{L.practiceThis}</p>
+                      <div className="flex flex-wrap gap-2">
+                        {ls.challenge_ids.map((id) => { const c = challenges.find((x) => x.id === id); if (!c) return null; const locked = !unlocked(c.level);
+                          return <Button key={id} size="sm" variant={solvedIds.has(id) ? "secondary" : "outline"} disabled={locked}
+                            onClick={() => { setActive(c); setPlang("python"); setTab("practice"); }}>
+                            {locked ? <Lock className="h-3 w-3" /> : solvedIds.has(id) ? <CheckCircle2 className="h-4 w-4 text-success" /> : null}{loc(c.title, lang)}</Button>; })}
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              );
+            })()}
+          </div>
+        </TabsContent>
+
+        <TabsContent value="console" className="mt-4">
+          <Card><CardContent className="space-y-3 p-5">
+            <p className="text-sm text-muted-foreground">{L.playIntro}</p>
+            <PyPlayground initial={'name = input("What is your name? ")\nprint(f"Hello, {name}!")\nfor i in range(3):\n    print(i, i * i)\n'} height="360px" />
+          </CardContent></Card>
+        </TabsContent>
 
         <TabsContent value="practice" className="mt-4">
           <div className="grid gap-4 lg:grid-cols-[260px_1fr]">
@@ -183,7 +253,8 @@ export default function CodeLab() {
                     </Select>
                     <Button variant="outline" onClick={run} disabled={!!busy}>{busy === "run" ? <Loader2 className="h-4 w-4 animate-spin" /> : <Play className="h-4 w-4" />}{t("lab.run")}</Button>
                     <Button onClick={submit} disabled={!!busy}>{busy === "submit" ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}Submit</Button>
-                    <Button variant="ghost" onClick={reveal} disabled={hints.used >= 3}><Lightbulb className="h-4 w-4" />{hints.used}/3</Button>
+                    <Button variant="ghost" onClick={reveal} disabled={hints.used >= 3}><Lightbulb className="h-4 w-4" />{L.getHint} {hints.used}/3</Button>
+                    <Button variant="ghost" onClick={() => setCodes({ ...codes, [key]: "" })}><Eraser className="h-4 w-4" />{L.clear}</Button>
                     <Button variant="ghost" onClick={() => setCodes({ ...codes, [key]: starter(active, plang) })}>{t("lab.reset")}</Button>
                   </div>
                   {hints.hints.length > 0 && (
@@ -192,6 +263,13 @@ export default function CodeLab() {
                     </div>
                   )}
                   {verdict && <p className="font-medium">{verdict}</p>}
+                  {solution && (
+                    <details className="rounded-lg border border-success/40 bg-success/10 p-3 text-sm">
+                      <summary className="cursor-pointer font-medium">✅ {L.solution}</summary>
+                      <p className="mt-2 text-muted-foreground">{loc(solution.explanation, lang)}</p>
+                      <pre dir="ltr" className="mt-2 overflow-x-auto rounded-lg bg-muted p-3 font-mono text-xs">{solution.code}</pre>
+                    </details>
+                  )}
                   {out && (
                     <div dir="ltr" className="space-y-2 rounded-lg border border-border bg-muted/40 p-3 font-mono text-xs">
                       {out.error && <p className="text-destructive">{out.error}</p>}
@@ -207,6 +285,15 @@ export default function CodeLab() {
                       })}
                       {out.logs.length > 0 && <pre className="border-t border-border pt-2 text-muted-foreground">{out.logs.join("\n")}</pre>}
                     </div>
+                  )}
+                  {history.length > 0 && (
+                    <details className="text-sm">
+                      <summary className="flex cursor-pointer items-center gap-1 text-muted-foreground"><History className="h-4 w-4" />{L.history} ({history.length})</summary>
+                      <ul className="mt-2 space-y-1 text-xs">
+                        {history.map((h) => <li key={h.id} className="flex items-center gap-2">{h.passed ? <CheckCircle2 className="h-3.5 w-3.5 text-success" /> : <XCircle className="h-3.5 w-3.5 text-destructive" />}
+                          {new Date(h.created_at).toLocaleString(lang)} · {h.language} · {h.passed_count}/{h.total_count} · 💡{h.hints_used}</li>)}
+                      </ul>
+                    </details>
                   )}
                 </CardContent>
               </Card>
